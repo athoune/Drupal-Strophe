@@ -80,15 +80,19 @@ function strophe_block($op = 'list', $delta = 0, $edit = array()) {
   
 }
 
-function theme_strophe_chat_room($chatroom) {
-  return "<p>$chatroom->jid</p>";
-}
+//function theme_strophe_chat_room($chatroom) {
+//  return "<p>$chatroom->jid</p>";
+//}
 
 /**
  * Implementation of hook_theme
  */
 function strophe_theme() {
+  $path = drupal_get_path('module', 'strophe');
   return array(
-    'strophe_chat_room' => array('arguments' => array('chatroom' => NULL)),
+    'strophe_chat_room' => array(
+      'path' => "$path/theme",
+      'template' => 'strophe_chat_room',
+      'arguments' => array('chatroom' => NULL)),
   );
 }
