@@ -68,9 +68,27 @@ function strophe_block($op = 'list', $delta = 0, $edit = array()) {
       break;
     case 'view':
       global $user;
+      if(0 == $user->uid) {
+        return;
+      }
+      include_once drupal_get_path('module', 'ejabberd_auth') . '/drupalAuth.inc';
+      $jid = $user->name . '@' . variable_get('strophe_domain', 'jabber.org') . '/' . variable_get('strophe_place', 'Drupal_Strophe_Client');
       $block['subject'] = t('The chat room');
-      $block['content'] = theme('chat_room', new strophe_chatroom($user->uid, 'plop'));
+      $block['content'] = theme('strophe_chat_room', new strophe_chatroom($jid, ejabberd_auth_hash($user->login)));
       return $block;
   }
   
+}
+
+function theme_strophe_chat_room($chatroom) {
+  return "<p>$chatroom->jid</p>";
+}
+
+/**
+ * Implementation of hook_theme
+ */
+function strophe_theme() {
+  return array(
+    'strophe_chat_room' => array('arguments' => array('chatroom' => NULL)),
+  );
 }
