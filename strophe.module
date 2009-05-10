@@ -1,0 +1,76 @@
+<?php
+/**
+ * Implementation of hook_init().
+ */
+function strophe_init() {
+  $js = array('b64', 'chat', 'md5', 'sha1', 'strophe', 'drupal');
+  foreach($js as $j){
+    drupal_add_js(drupal_get_path('module', 'strophe') ."/js/$j.js");
+  }
+}
+
+function strophe_menu() {
+  $items['admin/settings/strophe'] = array(
+    'description' => 'Chat with bosh',
+    'title' => 'Chat with bosh',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('strophe_admin_settings'),
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_NORMAL_ITEM,
+    );
+  return $items;
+}
+
+function strophe_admin_settings() {
+  $form['strophe_bosh_url'] = array(
+    '#type' => 'textfield',
+    '#title' => 'Url of BOSH service',
+    '#default_value' => variable_get('strophe_bosh_url', '/http-bind'),
+    '#description' => t("URL of the BOSH service for jabber HTTP binding"),
+  );
+  $form['strophe_domain'] = array(
+    '#type' => 'textfield',
+    '#title' => 'Domain for jabber',
+    '#default_value' => variable_get('strophe_domain', 'jabber.org'),
+    '#description' => t(""),
+  );
+  $form['strophe_place'] = array(
+    '#type' => 'textfield',
+    '#title' => 'Place for jabber',
+    '#default_value' => variable_get('strophe_place', 'Drupal_Strophe_Client'),
+    '#description' => t(""),
+  );
+  return system_settings_form($form);
+}
+
+class strophe_chatroom {
+  function __construct($jid, $passwd) {
+    $this->jid = $jid;
+    $this->passwd = $passwd;
+  }
+}
+
+function strophe_block($op = 'list', $delta = 0, $edit = array()) {
+  switch ($op) {
+    case 'list':
+      $blocks[0]['info'] = t('Chat');
+      $blocks[0]['cache'] = BLOCK_NO_CACHE;
+      return $blocks;
+    case 'configure':
+      $form['strophe_block_num_lines'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Number of chat line to display'),
+        '#default_value' => variable_get('strophe_block_num_lines', 5),
+        );
+      return $form;
+    case 'save':
+      variable_set('strophe_block_num_lines', (int)$edit['strophe_block_num_lines']);
+      break;
+    case 'view':
+      global $user;
+      $block['subject'] = t('The chat room');
+      $block['content'] = theme('chat_room', new strophe_chatroom($user->uid, 'plop'));
+      return $block;
+  }
+  
+}

@@ -1,0 +1,5 @@
+name = XMPP chat
+description = Strophe integration for XMPP (Jabber) chat with BOSH
+core = 6.x
+package = XMPP
+version = 0.1
