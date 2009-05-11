@@ -6,7 +6,10 @@ http://code.stanziq.com/strophe/
 
 -- REQUIREMENTS --
 XMPP server with http-binding is the same domain as the drupal web site.
-Developpement is done with Ejabberd and its module http_bind.
+Developpement is done with Ejabberd and its modules
+ * mod_muc
+ * mod_http_bind
+ * mod_webpresence can be nice
 
 With the Drupal's module ejabberd_auth, drupal can provides users to ejabberd.
 
