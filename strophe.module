@@ -11,7 +11,7 @@ function strophe_init() {
 
 function strophe_menu() {
   $items['admin/settings/strophe'] = array(
-    'description' => 'Chat with bosh',
+    'description' => 'Chat with XMPP over HTTP',
     'title' => 'Chat with bosh',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('strophe_admin_settings'),
@@ -22,21 +22,28 @@ function strophe_menu() {
 }
 
 function strophe_admin_settings() {
-  $form['strophe_bosh_url'] = array(
+  $form['strophe_jabber'] = array(
+    '#title' => t('XMPP'),
+    '#type' => 'fieldset',
+    '#description' => t('XMPP settings'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+  $form['strophe_jabber']['strophe_bosh_url'] = array(
     '#type' => 'textfield',
     '#title' => 'Url of BOSH service',
     '#default_value' => variable_get('strophe_bosh_url', '/http-bind'),
     '#description' => t("URL of the BOSH service for jabber HTTP binding"),
   );
-  $form['strophe_domain'] = array(
+  $form['strophe_jabber']['strophe_domain'] = array(
     '#type' => 'textfield',
-    '#title' => 'Domain for jabber',
+    '#title' => 'Domain for XMPP',
     '#default_value' => variable_get('strophe_domain', 'jabber.org'),
     '#description' => t(""),
   );
-  $form['strophe_place'] = array(
+  $form['strophe_jabber']['strophe_place'] = array(
     '#type' => 'textfield',
-    '#title' => 'Place for jabber',
+    '#title' => 'Place for XMPP',
     '#default_value' => variable_get('strophe_place', 'Drupal_Strophe_Client'),
     '#description' => t("XMPP user can be connected more than one times, with different place (the name of the client, or the name of the place where is the chatter is)"),
   );
@@ -45,6 +52,27 @@ function strophe_admin_settings() {
     '#title' => 'Default room name',
     '#default_value' => variable_get('strophe_default_room', 'drupal'),
     '#description' => t("Name of the default MUC (Multi User Chatroom)"),
+    
+  );
+  $form['strophe_bot'] = array(
+    '#title' => t('Bot'),
+    '#type' => 'fieldset',
+    '#description' => t('The bot of this website'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+  $form['strophe_bot']['strophe_bot_user'] = array(
+    '#type' => 'textfield',
+    '#title' => 'Default room name',
+    '#default_value' => variable_get('strophe_bot_user', 'admin'),
+    '#description' => t("Bot user, should be admin your ejabberd.cfg"),
+    
+  );
+  $form['strophe_bot']['strophe_bot_name'] = array(
+    '#type' => 'textfield',
+    '#title' => 'Default room name',
+    '#default_value' => variable_get('strophe_bot_name', 'The bot'),
+    '#description' => t("Name of the bot"),
     
   );
   return system_settings_form($form);
@@ -98,7 +126,7 @@ function strophe_block($op = 'list', $delta = 0, $edit = array()) {
         include_once drupal_get_path('module', 'ejabberd_auth') . '/drupalAuth.inc';
         $jid = $user->name . '@' . variable_get('strophe_domain', 'jabber.org') .'/'. variable_get('strophe_place', 'Drupal_Strophe_Client');
         $block['subject'] = t('The chat room');
-        $room = new strophe_chatroom($jid, ejabberd_auth_hash($user->login));
+        $room = new strophe_chatroom($jid, ejabberd_auth_hash($user->name));
         $room->lines = variable_get('strophe_block_num_lines_' .$delta, 5);
         $room->room = variable_get('strophe_block_room_' .$delta, 'conference');
         $block['content'] = theme('strophe_chat_room', $room);

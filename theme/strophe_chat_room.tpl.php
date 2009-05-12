@@ -1,34 +1,15 @@
 <h3><?php echo $chatroom->jid; ?></h3>
-
+<h4><?php echo $chatroom->passwd; ?></h4>
 <script type="text/javascript">
-	var connection = null;
-	var BOSH_SERVICE = '<?php echo $chatroom->bosh_service; ?>';
-	var chatter = null;
-
-	function log(what) {
-		console.log(what);
-	}
-
-	function rawInput(data) {
-		log('RECV: ' + data);
-	}
-
-	function rawOutput(data) {
-		log('SENT: ' + data);
-	}
 
 	$(document).ready(function(){
-		tchat = $('#tchat');
-		
-		connection = new Strophe.Connection(BOSH_SERVICE);
-		connection.rawInput = rawInput;
-		connection.rawOutput = rawOutput;
-		Chatter.connection = connection;
-		
-		Chat.prototype.handleMessage = function(from, to, type, body) {
-			tchat.append('<p><b>' + from + '</b> : ' + body + '</p>');
-		}
-		Chatter.connect('<?php echo $chatroom->jid; ?>', '<?php echo $chatroom->passwd; ?>');
+		var tchat = $('#tchat');
+		var xmpp = new Tchat(
+			'<?php echo $chatroom->bosh_service; ?>',
+			'<?php echo $chatroom->jid; ?>',
+			'<?php echo $chatroom->passwd; ?>'
+			);
+		xmpp.connect();
 /*
 		$('#login').click(function() {
 			log("auth");
@@ -39,7 +20,7 @@
 		});
 		*/
 		$('#doTchat').click(function() {
-			Chatter.chat(
+			xmpp.chat(
 				$('#cible').get(0).value,
 				$('#msg').get(0).value
 			);
@@ -48,7 +29,7 @@
 		$('#doGroup').click(function() {
 			var msg = $('#msg').get(0).value;
 			log('Message : ' + msg);
-			Chatter.groupchat(
+			xmpp.connection.groupchat(
 				'<?php echo $chatroom->room; ?>',
 				msg
 			);
