@@ -38,7 +38,14 @@ function strophe_admin_settings() {
     '#type' => 'textfield',
     '#title' => 'Place for jabber',
     '#default_value' => variable_get('strophe_place', 'Drupal_Strophe_Client'),
-    '#description' => t(""),
+    '#description' => t("XMPP user can be connected more than one times, with different place (the name of the client, or the name of the place where is the chatter is)"),
+  );
+  $form['strophe_default_room'] = array(
+    '#type' => 'textfield',
+    '#title' => 'Default room name',
+    '#default_value' => variable_get('strophe_default_room', 'drupal'),
+    '#description' => t("Name of the default MUC (Multi User Chatroom)"),
+    
   );
   return system_settings_form($form);
 }
@@ -47,42 +54,59 @@ class strophe_chatroom {
   function __construct($jid, $passwd) {
     $this->jid = $jid;
     $this->passwd = $passwd;
+    $this->bosh_service = variable_get('strophe_bosh_url', '/http-bind');
+    $this->lines = 5;
+    $this->room = 'conference';
   }
 }
 
 function strophe_block($op = 'list', $delta = 0, $edit = array()) {
   switch ($op) {
     case 'list':
-      $blocks[0]['info'] = t('Chat');
-      $blocks[0]['cache'] = BLOCK_NO_CACHE;
+      $blocks[0] = array(
+        'info' => t('Chat room'),
+        'cache' => BLOCK_NO_CACHE,
+      );
+      $blocks[1] = array(
+        'info' => t('Connected chatters'),
+        'cache' => BLOCK_NO_CACHE,
+      );
       return $blocks;
     case 'configure':
-      $form['strophe_block_num_lines'] = array(
+      if ($delta == 0) {
+          $form['strophe_block_num_lines'] = array(
+            '#type' => 'textfield',
+            '#title' => t('Number of chat line to display'),
+            '#default_value' => variable_get('strophe_block_num_lines', 5),
+          );
+      }
+      $form['strophe_block_room'] = array(
         '#type' => 'textfield',
-        '#title' => t('Number of chat line to display'),
-        '#default_value' => variable_get('strophe_block_num_lines', 5),
+        '#title' => t('Room name'),
+        '#default_value' => variable_get('strophe_block_room_' .$delta, 'conference'),
         );
       return $form;
     case 'save':
-      variable_set('strophe_block_num_lines', (int)$edit['strophe_block_num_lines']);
+      variable_set('strophe_block_num_lines_' .$delta, (int)$edit['strophe_block_num_lines']);
       break;
     case 'view':
       global $user;
       if(0 == $user->uid) {
         return;
       }
-      include_once drupal_get_path('module', 'ejabberd_auth') . '/drupalAuth.inc';
-      $jid = $user->name . '@' . variable_get('strophe_domain', 'jabber.org') . '/' . variable_get('strophe_place', 'Drupal_Strophe_Client');
-      $block['subject'] = t('The chat room');
-      $block['content'] = theme('strophe_chat_room', new strophe_chatroom($jid, ejabberd_auth_hash($user->login)));
-      return $block;
+      if($delta == 0) {
+        include_once drupal_get_path('module', 'ejabberd_auth') . '/drupalAuth.inc';
+        $jid = $user->name . '@' . variable_get('strophe_domain', 'jabber.org') .'/'. variable_get('strophe_place', 'Drupal_Strophe_Client');
+        $block['subject'] = t('The chat room');
+        $room = new strophe_chatroom($jid, ejabberd_auth_hash($user->login));
+        $room->lines = variable_get('strophe_block_num_lines_' .$delta, 5);
+        $room->room = variable_get('strophe_block_room_' .$delta, 'conference');
+        $block['content'] = theme('strophe_chat_room', $room);
+        return $block;
+      }
   }
   
 }
-
-//function theme_strophe_chat_room($chatroom) {
-//  return "<p>$chatroom->jid</p>";
-//}
 
 /**
  * Implementation of hook_theme

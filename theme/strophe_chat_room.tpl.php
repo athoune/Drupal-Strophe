@@ -1,8 +1,8 @@
-<h1><?php echo $chatroom->jid; ?></h1>
+<h3><?php echo $chatroom->jid; ?></h3>
 
 <script type="text/javascript">
 	var connection = null;
-	var BOSH_SERVICE = '/http-bind';
+	var BOSH_SERVICE = '<?php echo $chatroom->bosh_service; ?>';
 	var chatter = null;
 
 	function log(what) {
@@ -28,7 +28,8 @@
 		Chat.prototype.handleMessage = function(from, to, type, body) {
 			tchat.append('<p><b>' + from + '</b> : ' + body + '</p>');
 		}
-
+		Chatter.connect('<?php echo $chatroom->jid; ?>', '<?php echo $chatroom->passwd; ?>');
+/*
 		$('#login').click(function() {
 			log("auth");
 			Chatter.connect(
@@ -36,7 +37,7 @@
 				$('#mdp').get(0).value
 			);
 		});
-		
+		*/
 		$('#doTchat').click(function() {
 			Chatter.chat(
 				$('#cible').get(0).value,
@@ -45,9 +46,11 @@
 			$('#msg').get(0).value = "";
 		});
 		$('#doGroup').click(function() {
+			var msg = $('#msg').get(0).value;
+			log('Message : ' + msg);
 			Chatter.groupchat(
-				'beuha@conference.garambrogne.net',
-				$('#msg').get(0).value
+				'<?php echo $chatroom->room; ?>',
+				msg
 			);
 			$('#msg').get(0).value = "";
 		});
@@ -56,7 +59,7 @@
 </script>
 
 <input type="text" name="tchat" id="msg"/>
-<input type="button" value="Tchat" id="doTchat"/>
+<!--<input type="button" value="Tchat" id="doTchat"/>-->
 <input type="button" value="group" id="doGroup"/>
 <hr/>
 
