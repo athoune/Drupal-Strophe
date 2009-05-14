@@ -8,6 +8,11 @@
 			'<?php echo $chatroom->jid; ?>',
 			'<?php echo $chatroom->passwd; ?>'
 			);
+		var room;
+    xmpp.connect__presence_room = function() {
+      room = this.room('<?php echo $chatroom->default_room; ?>','Drupal');
+      room.presence();
+    };
 		xmpp.connect();
 /*
 		$('#login').click(function() {
@@ -26,13 +31,8 @@
 			$('#msg').get(0).value = "";
 		});
 		$('#doGroup').click(function() {
-			var msg = $('#msg').get(0).value;
-			log('Message : ' + msg);
-			xmpp.groupchat(
-				'<?php echo $chatroom->default_room; ?>',
-				msg
-			);
-			$('#msg').get(0).value = "";
+			room.message($('#msg').val());
+			$('#msg').val("");
 		});
 	});
 

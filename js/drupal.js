@@ -10,6 +10,10 @@ function rawOutput(data) {
 	log('SENT: ' + data);
 }
 
+Array.prototype.append = function(a) {
+	this[this.length] = a;
+}
+
 var Tchat = function(service, login, passwd) {
 	this.login = login;
 	this.passwd = passwd;
@@ -17,8 +21,21 @@ var Tchat = function(service, login, passwd) {
 	this.connection.rawInput = rawInput;
 	this.connection.rawOutput = rawOutput;
 	this.connection.tchat = this;
-	this.room = [];
+	this._room = {};
 };
+
+Tchat.prototype.connect__presence = function() {
+	this.connection.send($pres().tree());
+}
+
+Tchat.prototype._doConnect = function() {
+	for(var m in this) {
+		if(m.slice(0,9) == "connect__") {
+			log("Trigger: " + m);
+			this[m]();
+		}
+	}
+}
 
 Tchat.prototype.connect = function() {
 	log(this);
@@ -29,16 +46,12 @@ Tchat.prototype.connect_status = function(status) {
 	log("Status: " +status);
 }
 
-Tchat.prototype.groupchat = function(room, talk){
-	if(this.room.length == 0) {
-		this.room[this.room.length] = room;
-		this.connection.send($pres({to: room + '/Robert'}).tree());
+Tchat.prototype.room = function(room) {
+	if(this._room[room] == null) {
+		this._room[room] = new Room(this.connection, room, 'Robert');
+		this._room[room].presence();
 	}
-	var msg = $msg({
-			to: room,
-			type: 'groupchat'});
-	msg.c('body',{}).t(talk);
-	this.connection.send(msg.tree());
+	return this._room[room];
 }
 
 Tchat_onConnect = function(status) {
@@ -56,7 +69,8 @@ Tchat_onConnect = function(status) {
 	} else if (status == Strophe.Status.CONNECTED) {
 		log('Strophe is connected.');
 		this.addHandler(Tchat_onMessage, null, 'message', null, null,  null); 
-		this.send($pres().tree());
+		//this.send($pres().tree());
+		this.tchat._doConnect();
 	}
 };
 
@@ -76,6 +90,26 @@ Tchat_onMessage = function(msg) {
 
 	
 Tchat.prototype.handleMessage = function(from, to, type, body) {
-		tchat.append('<p><b>' + from + '</b> : ' + body + '</p>');
-		return this;
-	};
+	tchat.append('<p><b>' + from + '</b> : ' + body + '</p>');
+	return this;
+};
+
+var Room = function(connection, room, pseudo) {
+	this.connection = connection;
+	this.room = room;
+	this.pseudo = pseudo;
+}
+
+Room.prototype = {
+	presence: function() {
+		this.connection.send($pres({
+			to: this.room + '/' + this.pseudo}).tree());
+	},
+	message: function(blabla) {
+		var msg = $msg({
+				to: this.room,
+				type: 'groupchat'});
+		msg.c('body',{}).t(blabla);
+		this.connection.send(msg.tree());
+	}
+}
