@@ -1,18 +1,34 @@
-<h3><?php echo $chatroom->jid; ?></h3>
+<h3><?php echo $chatroom->room; ?></h3>
 <script type="text/javascript">
 
 	$(document).ready(function(){
 		var tchat = $('#tchat');
+		var presence = $('#xmpp_presence');
 		var xmpp = new Tchat(
 			'<?php echo $chatroom->bosh_service; ?>',
 			'<?php echo $chatroom->jid; ?>',
 			'<?php echo $chatroom->passwd; ?>'
 			);
 		var room;
-    xmpp.connect__presence_room = function() {
-      room = this.room('<?php echo $chatroom->default_room; ?>','Drupal');
+    xmpp.handleConnect(function() {
+      room = this.room('<?php echo $chatroom->default_room; ?>', 'Drupal');
       room.presence();
-    };
+    });
+    xmpp.handlePresence(function(pres) {
+      presence.empty();
+      for(var p in this._presence) {
+        presence.append(
+          $('<li>').text(p)
+        );
+      }
+    });
+    xmpp.handleAnyChat(function(msg) {
+      tchat.append(
+        $("<li>")
+          .append($("<b>").text((msg.nick != null) ? msg.nick : msg.from))
+          .append(": " + msg.body)
+      );
+    });
 		xmpp.connect();
 /*
 		$('#login').click(function() {
@@ -37,6 +53,8 @@
 	});
 
 </script>
+
+<ul id="xmpp_presence"></ul>
 
 <input type="text" name="tchat" id="msg"/>
 <!--<input type="button" value="Tchat" id="doTchat"/>-->

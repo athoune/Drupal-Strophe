@@ -3,7 +3,7 @@
  * Implementation of hook_init().
  */
 function strophe_init() {
-  $js = array('b64', 'chat', 'md5', 'sha1', 'strophe', 'drupal');
+  $js = array('b64', 'chat', 'md5', 'sha1', 'strophe', 'poem', 'drupal');
   foreach($js as $j){
     drupal_add_js(drupal_get_path('module', 'strophe') ."/js/$j.js");
   }
