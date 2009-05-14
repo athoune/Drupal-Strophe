@@ -17,16 +17,28 @@ var Tchat = function(service, login, passwd) {
 	this.connection.rawInput = rawInput;
 	this.connection.rawOutput = rawOutput;
 	this.connection.tchat = this;
-	this.connection.addHandler(Tchat_onMessage, null, 'message', null, null,  null); 
+	this.room = [];
 };
 
 Tchat.prototype.connect = function() {
-	log(this.onConnect);
+	log(this);
 	this.connection.connect(this.login, this.passwd, Tchat_onConnect);
 };
 
 Tchat.prototype.connect_status = function(status) {
 	log("Status: " +status);
+}
+
+Tchat.prototype.groupchat = function(room, talk){
+	if(this.room.length == 0) {
+		this.room[this.room.length] = room;
+		this.connection.send($pres({to: room + '/Robert'}).tree());
+	}
+	var msg = $msg({
+			to: room,
+			type: 'groupchat'});
+	msg.c('body',{}).t(talk);
+	this.connection.send(msg.tree());
 }
 
 Tchat_onConnect = function(status) {
@@ -43,8 +55,9 @@ Tchat_onConnect = function(status) {
 		this.tchat.connect_status('disconnect');
 	} else if (status == Strophe.Status.CONNECTED) {
 		log('Strophe is connected.');
+		this.addHandler(Tchat_onMessage, null, 'message', null, null,  null); 
+		this.send($pres().tree());
 	}
-	this.send($pres().tree());
 };
 
 Tchat_onMessage = function(msg) {

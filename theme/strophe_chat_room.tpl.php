@@ -1,5 +1,4 @@
 <h3><?php echo $chatroom->jid; ?></h3>
-<h4><?php echo $chatroom->passwd; ?></h4>
 <script type="text/javascript">
 
 	$(document).ready(function(){
@@ -29,8 +28,8 @@
 		$('#doGroup').click(function() {
 			var msg = $('#msg').get(0).value;
 			log('Message : ' + msg);
-			xmpp.connection.groupchat(
-				'<?php echo $chatroom->room; ?>',
+			xmpp.groupchat(
+				'<?php echo $chatroom->default_room; ?>',
 				msg
 			);
 			$('#msg').get(0).value = "";

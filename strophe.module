@@ -84,7 +84,7 @@ class strophe_chatroom {
     $this->passwd = $passwd;
     $this->bosh_service = variable_get('strophe_bosh_url', '/http-bind');
     $this->lines = 5;
-    $this->room = 'conference';
+    $this->default_room = 'conference@conference.'. variable_get('strophe_domain', 'jabber.org');
   }
 }
 
