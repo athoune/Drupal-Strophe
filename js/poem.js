@@ -16,9 +16,27 @@ if (!Array.prototype.append) {
 	}
 }
 
-var Tchat = function(service, login, passwd) {
+var Jid = function(txt) {
+	var t = txt.split('@');
+	this.user = t[0];
+	t = t[1].split('/');
+	this.domain = t[0];
+	this.place = t[1];
+}
+Jid.prototype = {
+	toString: function() {
+		return this.user + '@' + this.domain + '/' + this.place;
+	},
+	isRoom: function() {
+		//[TODO] un peu naïf?
+		return this.domain.split('.')[0] == 'conference';
+	}
+}
+
+var Tchat = function(service, login, passwd, nickname) {
 	this.login = login;
 	this.passwd = passwd;
+	this.nickname = nickname;
 	this.connection = new Strophe.Connection(service);
 	this.connection.rawInput = rawInput;
 	this.connection.rawOutput = rawOutput;
@@ -32,7 +50,6 @@ var Tchat = function(service, login, passwd) {
 	this._onAnyChat = [];
 
 	this.handleConnect(function() {
-		log(this);
 		this.connection.send($pres().tree());
 	});
 	
@@ -74,7 +91,7 @@ Tchat.prototype = {
 	//Get a room, build it if needed
 	room: function(room) {
 		if(this._room[room] == null) {
-			this._room[room] = new Room(this.connection, room, 'Robert');
+			this._room[room] = new Room(this.connection, room, this.nickname);
 			this._room[room].presence();
 		}
 		return this._room[room];
@@ -100,9 +117,8 @@ Tchat_onConnect = function(status) {
 		this.tchat.connect_status('disconnect');
 	} else if (status == Strophe.Status.CONNECTED) {
 		log('Strophe is connected.');
-		this.addHandler(Tchat_onMessage.bind(this.tchat), null, 'message', null, null,  null); 
+		//this.addHandler(Tchat_onMessage.bind(this.tchat), null, 'message', null, null,  null); 
 		this.addHandler(Tchat_onPresence.bind(this.tchat), null, 'presence', null, null,  null); 
-		//this.send($pres().tree());
 		for(var i=0; i < this.tchat._onConnect.length; i++) {
 			this.tchat._onConnect[i]();
 		}
@@ -115,29 +131,31 @@ Tchat_onMessage = function(msg) {
 	var to = msg.getAttribute('to');
 	var from = msg.getAttribute('from');
 	var type = msg.getAttribute('type');
-	var elems = msg.getElementsByTagName('body');
+	var body = msg.getElementsByTagName('body');
 	var nick = msg.getElementsByTagName('nick');
-	nick = ( nick.length > 0) ? nick[0] : null;
+	nick = ( nick.length > 0) ? nick[0] : '';
 	var m = {
 		to: to,
 		type: type,
 		from: from,
+		from_jid: new Jid(from),
 		nick: nick,
-		body: Strophe.getText(elems[0])
+		body: ''
 	};
-	if(elems.length > 0) {
+	if(body.length > 0) {
+		m.body = Strophe.getText(body[0]);
 		for(var i=0; i < this._onAnyChat.length; i++) {
 			this._onAnyChat[i](m);
 		}
-	}
-	if(type == 'groupchat') {
-		for(var i=0; i < this._onGroupChat.length; i++) {
-			this._onGroupChat[i](m);
+		if(type == 'groupchat') {
+			for(var i=0; i < this._onGroupChat.length; i++) {
+				this._onGroupChat[i](m);
+			}
 		}
-	}
-	if(type == 'chat') {
-		for(var i=0; i < this._onChat.length; i++) {
-			this._onChat[i](m);
+		if(type == 'chat') {
+			for(var i=0; i < this._onChat.length; i++) {
+				this._onChat[i](m);
+			}
 		}
 	}
 	return true;
@@ -151,9 +169,10 @@ Tchat_onPresence = function(pres) {
 	var show = pres.getElementsByTagName('show');
 	var p = {
 		from: from,
+		jid: new Jid(from),
 		type: type,
-		status: Strophe.getText(status[0]),
-		show: Strophe.getText(show[0])
+		status: (status.length > 0) ? Strophe.getText(status[0]) : null,
+		show: (show.length > 0) ? Strophe.getText(show[0]) : null
 	};
 	for(var i=0; i < this._onPresence.length; i++) {
 		this._onPresence[i](p);

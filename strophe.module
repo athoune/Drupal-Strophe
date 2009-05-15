@@ -85,6 +85,7 @@ class strophe_chatroom {
     $this->bosh_service = variable_get('strophe_bosh_url', '/http-bind');
     $this->lines = 5;
     $this->default_room = 'conference@conference.'. variable_get('strophe_domain', 'jabber.org');
+    $this->nickname = "Sponge Bob";
   }
 }
 
@@ -129,6 +130,7 @@ function strophe_block($op = 'list', $delta = 0, $edit = array()) {
         $room = new strophe_chatroom($jid, ejabberd_auth_hash($user->name));
         $room->lines = variable_get('strophe_block_num_lines_' .$delta, 5);
         $room->room = variable_get('strophe_block_room_' .$delta, 'conference');
+        $room->nickname = $user->name;
         $block['content'] = theme('strophe_chat_room', $room);
         return $block;
       }

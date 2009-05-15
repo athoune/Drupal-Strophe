@@ -7,7 +7,8 @@
 		var xmpp = new Tchat(
 			'<?php echo $chatroom->bosh_service; ?>',
 			'<?php echo $chatroom->jid; ?>',
-			'<?php echo $chatroom->passwd; ?>'
+			'<?php echo $chatroom->passwd; ?>',
+			'<?php echo $chatroom->nickname; ?>'
 			);
 		var room;
     xmpp.handleConnect(function() {
@@ -17,9 +18,13 @@
     xmpp.handlePresence(function(pres) {
       presence.empty();
       for(var p in this._presence) {
-        presence.append(
-          $('<li>').text(p)
-        );
+        var pp = this._presence[p];
+        log(pp.jid);
+        if(pp.jid.isRoom()) {
+          presence.append(
+            $('<li>').text(pp.jid.place)
+          );
+        }
       }
     });
     xmpp.handleAnyChat(function(msg) {
