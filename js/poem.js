@@ -1,5 +1,6 @@
 function log(what) {
-	console.log(what);
+	if(typeof console != 'undefined')
+		console.log(what);
 }
 
 function rawInput(data) {
