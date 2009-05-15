@@ -117,7 +117,7 @@ Tchat_onConnect = function(status) {
 		this.tchat.connect_status('disconnect');
 	} else if (status == Strophe.Status.CONNECTED) {
 		log('Strophe is connected.');
-		//this.addHandler(Tchat_onMessage.bind(this.tchat), null, 'message', null, null,  null); 
+		this.addHandler(Tchat_onMessage.bind(this.tchat), null, 'message', null, null,  null); 
 		this.addHandler(Tchat_onPresence.bind(this.tchat), null, 'presence', null, null,  null); 
 		for(var i=0; i < this.tchat._onConnect.length; i++) {
 			this.tchat._onConnect[i]();
@@ -139,7 +139,7 @@ Tchat_onMessage = function(msg) {
 		type: type,
 		from: from,
 		from_jid: new Jid(from),
-		nick: nick,
+		nick: (nick.length > 0) ? Strophe.getText(nick[0]) : null,
 		body: ''
 	};
 	if(body.length > 0) {

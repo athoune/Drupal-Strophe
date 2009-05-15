@@ -19,7 +19,6 @@
       presence.empty();
       for(var p in this._presence) {
         var pp = this._presence[p];
-        log(pp.jid);
         if(pp.jid.isRoom()) {
           presence.append(
             $('<li>').text(pp.jid.place)
@@ -28,6 +27,7 @@
       }
     });
     xmpp.handleAnyChat(function(msg) {
+      log(msg);
       tchat.append(
         $("<li>")
           .append($("<b>").text((msg.nick != null) ? msg.nick : msg.from))
