@@ -51,9 +51,10 @@
 			);
 			$('#msg').get(0).value = "";
 		});
-		$('#doGroup').click(function() {
+		$('#xmpp_form').submit(function() {
 			room.message($('#msg').val());
 			$('#msg').val("");
+			return false;
 		});
 	});
 
@@ -61,9 +62,11 @@
 
 <ul id="xmpp_presence"></ul>
 
+<form id="xmpp_form">
 <input type="text" name="tchat" id="msg"/>
 <!--<input type="button" value="Tchat" id="doTchat"/>-->
-<input type="button" value="group" id="doGroup"/>
+<input type="submit" value="Tchat" id="doGroup"/>
+</form>
 <hr/>
 
 <div id="tchat"></div>
