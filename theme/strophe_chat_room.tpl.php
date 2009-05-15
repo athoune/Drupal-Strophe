@@ -26,11 +26,11 @@
         }
       }
     });
-    xmpp.handleAnyChat(function(msg) {
+    xmpp.handleGroupChat(function(msg) {
       log(msg);
       tchat.append(
         $("<li>")
-          .append($("<b>").text((msg.nick != null) ? msg.nick : msg.from))
+          .append($("<b>").text((msg.nick != null) ? msg.nick : msg.from_jid.place))
           .append(": " + msg.body)
       );
     });
