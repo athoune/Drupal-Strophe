@@ -11,9 +11,11 @@
 			'<?php echo $chatroom->nickname; ?>'
 			);
 		var room;
-    xmpp.handleConnect(function() {
-      room = this.room('<?php echo $chatroom->default_room; ?>', 'Drupal');
-      room.presence();
+    xmpp.handleConnect(function(status) {
+      if('connected' == status) {
+        room = this.room('<?php echo $chatroom->default_room; ?>', 'Drupal');
+        room.presence();
+      }
     });
     xmpp.handlePresence(function(pres) {
       presence.empty();

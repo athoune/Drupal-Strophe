@@ -4,11 +4,11 @@ function log(what) {
 }
 
 function rawInput(data) {
-	log('RECV: ' + data);
+	//log('RECV: ' + data);
 }
 
 function rawOutput(data) {
-	log('SENT: ' + data);
+	//log('SENT: ' + data);
 }
 
 if (!Array.prototype.append) {
@@ -50,8 +50,12 @@ var Tchat = function(service, login, passwd, nickname) {
 	this._onGroupChat = [];
 	this._onAnyChat = [];
 
-	this.handleConnect(function() {
-		this.connection.send($pres().tree());
+	this.handleConnect(function(status) {
+		if('connected' == status) {
+			this.connection.addHandler(Tchat_onMessage.bind(this), null, 'message', null, null,  null); 
+			this.connection.addHandler(Tchat_onPresence.bind(this), null, 'presence', null, null,  null); 
+			this.connection.send($pres().tree());
+		}
 	});
 	
 	this.handlePresence(function(pres) {
@@ -104,25 +108,25 @@ Tchat.prototype = {
 	}
 };
 
+//return a name from a status
+Tchat.status = function(status) {
+	var dico = {};
+	dico[Strophe.Status.CONNECTING] = 'connecting';
+	dico[Strophe.Status.CONNFAIL] = 'connfail';
+	dico[Strophe.Status.AUTHENTICATING] = 'authenticating';
+	dico[Strophe.Status.AUTHFAIL] = 'authfail';
+	dico[Strophe.Status.DISCONNECTING] = 'disconnecting';
+	dico[Strophe.Status.DISCONNECTED] = 'disconnected';
+	dico[Strophe.Status.CONNECTED] = 'connected';
+	return dico[status];
+}
+
 Tchat_onConnect = function(status) {
 	//this == Strophe.Connection
-	if (status == Strophe.Status.CONNECTING) {
-		log('Strophe is connecting.');
-	} else if (status == Strophe.Status.CONNFAIL) {
-		log('Strophe failed to connect.');
-		this.tchat.connect_status('connect');
-	} else if (status == Strophe.Status.DISCONNECTING) {
-		log('Strophe is disconnecting.');
-	} else if (status == Strophe.Status.DISCONNECTED) {
-		log('Strophe is disconnected.');
-		this.tchat.connect_status('disconnect');
-	} else if (status == Strophe.Status.CONNECTED) {
-		log('Strophe is connected.');
-		this.addHandler(Tchat_onMessage.bind(this.tchat), null, 'message', null, null,  null); 
-		this.addHandler(Tchat_onPresence.bind(this.tchat), null, 'presence', null, null,  null); 
-		for(var i=0; i < this.tchat._onConnect.length; i++) {
-			this.tchat._onConnect[i]();
-		}
+	var st = Tchat.status(status);
+	log('Strophe is ' + st);
+	for(var i=0; i < this.tchat._onConnect.length; i++) {
+		this.tchat._onConnect[i](st);
 	}
 	return true;
 };
