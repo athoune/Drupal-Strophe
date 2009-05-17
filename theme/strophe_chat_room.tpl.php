@@ -42,6 +42,10 @@
           .append(": " + msg.body)
       );
     });
+    xmpp.handleServerMessage(function(msg) {
+      log(msg);
+      alert(msg.body)
+    });
 		xmpp.connect();
 /*
 		$('#login').click(function() {

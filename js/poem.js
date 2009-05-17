@@ -18,11 +18,18 @@ if (!Array.prototype.append) {
 }
 
 var Jid = function(txt) {
+	this.domain = null;
+	this.place = null;
 	var t = txt.split('@');
-	this.user = t[0];
-	t = t[1].split('/');
-	this.domain = t[0];
-	this.place = t[1];
+	if(t.length == 1) {
+		this.user = t;
+	} else {
+		this.user = t[0];
+		t = t[1].split('/');
+		this.domain = t[0];
+		if(t.length > 0)
+			this.place = t[1];
+	}
 }
 Jid.prototype = {
 	toString: function() {
@@ -35,6 +42,8 @@ Jid.prototype = {
 }
 
 var Tchat = function(service, login, passwd, nickname) {
+	this.jid = new Jid(login);
+	log(this.jid);
 	this.login = login;
 	this.passwd = passwd;
 	this.nickname = nickname;
@@ -49,6 +58,7 @@ var Tchat = function(service, login, passwd, nickname) {
 	this._onChat = [];
 	this._onGroupChat = [];
 	this._onAnyChat = [];
+	this._onServerMessage = [];
 
 	this.handleConnect(function(status) {
 		if('connected' == status) {
@@ -83,6 +93,10 @@ Tchat.prototype = {
 
 	handleAnyChat: function(h) {
 		this._onAnyChat.append(h.bind(this));
+	},
+
+	handleServerMessage: function(h) {
+		this._onServerMessage.append(h.bind(this));
 	},
 
 	connect: function() {
@@ -138,17 +152,20 @@ Tchat_onMessage = function(msg) {
 	var type = msg.getAttribute('type');
 	var body = msg.getElementsByTagName('body');
 	var nick = msg.getElementsByTagName('nick');
-	nick = ( nick.length > 0) ? nick[0] : '';
+	var subject = msg.getElementsByTagName('subject');
+	subject = (subject.length > 0) ? Strophe.getText(subject[0]) : null;
+	nick = (nick.length > 0) ? Strophe.getText(nick[0]) : null;
+	body = (body.length > 0) ? Strophe.getText(body[0]) : null;
 	var m = {
 		to: to,
 		type: type,
 		from: from,
 		from_jid: new Jid(from),
-		nick: (nick.length > 0) ? Strophe.getText(nick[0]) : null,
-		body: ''
+		subject: subject,
+		nick: nick,
+		body: body
 	};
-	if(body.length > 0) {
-		m.body = Strophe.getText(body[0]);
+	if(body != null) {
 		for(var i=0; i < this._onAnyChat.length; i++) {
 			this._onAnyChat[i](m);
 		}
@@ -160,6 +177,12 @@ Tchat_onMessage = function(msg) {
 		if(type == 'chat') {
 			for(var i=0; i < this._onChat.length; i++) {
 				this._onChat[i](m);
+			}
+		}
+		log(this.jid);
+		if(from == this.jid.domain) {
+			for(var i=0; i < this._onServerMessage.length; i++) {
+				this._onServerMessage[i](m);
 			}
 		}
 	}
