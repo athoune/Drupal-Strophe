@@ -1,9 +1,11 @@
 <h3><?php echo $chatroom->room; ?></h3>
+<div id="info"></div>
 <script type="text/javascript">
 
 	$(document).ready(function(){
 		var tchat = $('#tchat');
 		var presence = $('#xmpp_presence');
+		var info = $("#info");
 		var xmpp = new Tchat(
 			'<?php echo $chatroom->bosh_service; ?>',
 			'<?php echo $chatroom->jid; ?>',
@@ -13,8 +15,12 @@
 		var room;
     xmpp.handleConnect(function(status) {
       if('connected' == status) {
+        info.empty();
         room = this.room('<?php echo $chatroom->default_room; ?>', 'Drupal');
         room.presence();
+      } else {
+        info.text(status);
+        presence.empty();
       }
     });
     xmpp.handlePresence(function(pres) {
