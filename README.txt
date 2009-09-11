@@ -39,6 +39,14 @@ And load the module in the right place, in the modules block, near the end of th
 
 ------------------------------------------------------>8
 
+Restart ejabberd. If you try to connect with a web browser to http://myserver:5280/http-bind you should see :
+
+8<------------------------------------------------------
+Ejabberd mod_http_bind v1.2
+
+An implementation of XMPP over BOSH (XEP-0206)
+------------------------------------------------------>8
+
 Web server
 
 Use proxy on your web server (apache, lighttpd ...) to provide /http-bind in the same adress as your website. Be careful with open proxy.
@@ -58,6 +66,8 @@ ProxyPass /http-bind http://127.0.0.1:5280/http-bind
 ProxyPassReverse /http-bind http://127.0.0.1:5280/http-bind
 
 ------------------------------------------------------>8
+
+Restart Apache. You should see the debug page on http://myserver/http-bind
 
 Drupal
 
