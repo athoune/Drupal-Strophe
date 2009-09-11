@@ -14,9 +14,54 @@ Developpement is done with Ejabberd and its modules
 With the Drupal's module ejabberd_auth, drupal can provides users to ejabberd.
 
 -- USAGE --
- * Install and configure an Ejabberd with drupal authentification and module http_bind.
- * Use proxy on your web server (apache, lighttpd ...) to provide /http-bind in the same adress as your website
- * Puts chat block where you wont on your website.
+
+Ejabberd
+
+Install and configure an Ejabberd with drupal authentification
+
+Configure http_bind
+8<------------------------------------------------------
+
+{5280, ejabberd_http, [
+       http_bind,
+       http_poll,
+       web_admin,
+       ]}
+]}.
+
+------------------------------------------------------>8
+
+And load the module in the right place, in the modules block, near the end of the config file. Be careful with the ending comma.
+
+8<------------------------------------------------------
+
+{mod_http_bind,  []},
+
+------------------------------------------------------>8
+
+Web server
+
+Use proxy on your web server (apache, lighttpd ...) to provide /http-bind in the same adress as your website. Be careful with open proxy.
+Here is an apache 2 configuration example :
+
+8<------------------------------------------------------
+
+ProxyVia on
+ProxyRequests off
+ProxyPreserveHost on
+Proxy *>
+	Order deny,allow
+	Allow from all
+</Proxy>
+
+ProxyPass /http-bind http://127.0.0.1:5280/http-bind
+ProxyPassReverse /http-bind http://127.0.0.1:5280/http-bind
+
+------------------------------------------------------>8
+
+Drupal
+
+Puts chat block where you wont on your website.
 
 -- CONTACT --
 Mathieu - http://drupal.org/user/378820
