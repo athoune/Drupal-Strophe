@@ -15,9 +15,20 @@ With the Drupal's module ejabberd_auth, drupal can provides users to ejabberd.
 
 -- USAGE --
 
+You have to choose a domain for your xmpp server, it may be a real domain, if you wont to use classical xmpp client, or a fake one if you only wont to use it inside Drupal.
+
 Ejabberd
 
 Install and configure an Ejabberd with drupal authentification
+
+Set your domain. Here, I use a fake domain : tchat.tld
+
+8<------------------------------------------------------
+
+%% Hostname
+{hosts, ["localhost", "tchat.tld"]}.
+
+------------------------------------------------------>8
 
 Configure http_bind
 8<------------------------------------------------------
@@ -47,6 +58,8 @@ Ejabberd mod_http_bind v1.2
 An implementation of XMPP over BOSH (XEP-0206)
 ------------------------------------------------------>8
 
+http bind may not work with packaged version, use the source to compile a fresh ejabberd.
+
 Web server
 
 Use proxy on your web server (apache, lighttpd ...) to provide /http-bind in the same adress as your website. Be careful with open proxy.
@@ -70,6 +83,8 @@ ProxyPassReverse /http-bind http://127.0.0.1:5280/http-bind
 Restart Apache. You should see the debug page on http://myserver/http-bind
 
 Drupal
+
+Go to /admin/settings/strophe to set your domain
 
 Puts chat block where you wont on your website.
 
