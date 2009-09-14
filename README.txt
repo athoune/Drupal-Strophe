@@ -88,5 +88,16 @@ Go to /admin/settings/strophe to set your domain
 
 Puts chat block where you wont on your website.
 
+In your theme, you should have something like :
+8<------------------------------------------------------
+
+#tchat {
+	overflow: auto;
+	height: 100px;
+	border: thin solid black ;
+}
+
+------------------------------------------------------>8
+
 -- CONTACT --
 Mathieu - http://drupal.org/user/378820
