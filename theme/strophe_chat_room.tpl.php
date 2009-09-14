@@ -74,11 +74,11 @@
 
 <ul id="xmpp_presence"></ul>
 
+<div id="tchat"></div>
+
 <form id="xmpp_form">
 <input type="text" name="tchat" id="msg"/>
 <!--<input type="button" value="Tchat" id="doTchat"/>-->
 <input type="submit" value="Tchat" id="doGroup"/>
 </form>
-<hr/>
 
-<div id="tchat"></div>
