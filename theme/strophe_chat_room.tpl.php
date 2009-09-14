@@ -41,6 +41,7 @@
           .append($("<b>").text((msg.nick != null) ? msg.nick : msg.from_jid.place))
           .append(": " + msg.body)
       );
+      tchat.scrollTop(tchat.height());
     });
     xmpp.handleServerMessage(function(msg) {
       log(msg);
