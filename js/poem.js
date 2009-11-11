@@ -46,20 +46,6 @@ poem.Jid.prototype = {
 	}
 }
 
-/**
- * Extract event from a message
- */
-poem.extractEvents = function(message) {
-	var events = []
-	var childs = message.childNodes;
-	for(var i=0; i < childs.length; i++){
-		var child = childs[i];
-		if(child.localName == 'event') {
-			events.append(child);
-		}
-	}
-	return events;
-}
 poem.buildEvent = function(to, action) {
 	return $msg({type:'headline', to:to})
 		.c('event',{})
@@ -85,6 +71,7 @@ poem.Tchat = function(service, login, passwd, nickname) {
 	this._onAnyChat = [];
 	this._onServerMessage = [];
 	this._onHeadline= [];
+	this._onEvent = [];
 
 	this.handleConnect(function(status) {
 		if('connected' == status) {
@@ -111,8 +98,18 @@ poem.Tchat = function(service, login, passwd, nickname) {
 						body:     body
 					};
 					if(type == 'headline') {
+						var childs = msg.childNodes;
+						for(var i=0; i < childs.length; i++){
+							var child = childs[i];
+							if(child.localName == 'event') {
+								for(var i=0; i < this._onEvent.length; i++) {
+									this._onEvent[i](child);
+								}
+							}
+						}
+						
 						for(var i=0; i < this._onHeadline.length; i++) {
-							this._onHeadline[i](m);
+							this._onHeadline[i](msg);
 						}
 					}
 					if(body != null) {
@@ -190,6 +187,9 @@ poem.Tchat.prototype = {
 	},
 	handleHeadline: function(h) {
 		this._onHeadline.append(h.bind(this));
+	},
+	handleEvent: function(h) {
+		this._onEvent.append(h.bind(this));
 	},
 	connect: function() {
 		this.connection.connect(this.login, this.passwd, 

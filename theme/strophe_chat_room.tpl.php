@@ -34,12 +34,8 @@
         }
       }
     });
-    xmpp.handleHeadline(function(headline) {
-      var events = poem.extractEvents(headline.msg);
-      for(var i=0; i < events.length; i++) {
-        var event = events[i];
+    xmpp.handleEvent(function(event) {
         poem.log(event.textContent);
-      }
     });
     xmpp.handleGroupChat(function(msg) {
       poem.log(msg);
