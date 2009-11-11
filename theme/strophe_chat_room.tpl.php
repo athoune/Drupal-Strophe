@@ -6,7 +6,7 @@
 		var tchat = $('#tchat');
 		var presence = $('#xmpp_presence');
 		var info = $("#info");
-		var xmpp = new Tchat(
+		var xmpp = new poem.Tchat(
 			'<?php echo $chatroom->bosh_service; ?>',
 			'<?php echo $chatroom->jid; ?>',
 			'<?php echo $chatroom->passwd; ?>',
@@ -35,7 +35,7 @@
       }
     });
     xmpp.handleGroupChat(function(msg) {
-      log(msg);
+      poem.log(msg);
       tchat.append(
         $("<li>")
           .append($("<b>").text((msg.nick != null) ? msg.nick : msg.from_jid.place))
@@ -44,7 +44,7 @@
       tchat.scrollTop(tchat.attr('scrollHeight'));
     });
     xmpp.handleServerMessage(function(msg) {
-      log(msg);
+      poem.log(msg);
       alert(msg.body)
     });
 		xmpp.connect();

@@ -1,15 +1,18 @@
-function log(what) {
-	if(typeof console != 'undefined')
-		console.log(what);
+var poem = {
+	log : function(what) {
+		if(typeof console != 'undefined')
+			console.log(what);
+	},
+
+	rawInput: function(data) {
+		//log('RECV: ' + data);
+	},
+
+	rawOutput: function(data) {
+		//log('SENT: ' + data);
+	}
 }
 
-function rawInput(data) {
-	//log('RECV: ' + data);
-}
-
-function rawOutput(data) {
-	//log('SENT: ' + data);
-}
 
 if (!Array.prototype.append) {
 	Array.prototype.append = function(a) {
@@ -17,7 +20,10 @@ if (!Array.prototype.append) {
 	}
 }
 
-var Jid = function(txt) {
+/**
+ * Jabber InDentification
+ */
+poem.Jid = function(txt) {
 	this.domain = null;
 	this.place = null;
 	var t = txt.split('@');
@@ -31,7 +37,7 @@ var Jid = function(txt) {
 			this.place = t[1];
 	}
 }
-Jid.prototype = {
+poem.Jid.prototype = {
 	toString: function() {
 		return this.user + '@' + this.domain + '/' + this.place;
 	},
@@ -41,15 +47,15 @@ Jid.prototype = {
 	}
 }
 
-var Tchat = function(service, login, passwd, nickname) {
-	this.jid = new Jid(login);
-	log(this.jid);
+poem.Tchat = function(service, login, passwd, nickname) {
+	this.jid = new poem.Jid(login);
+	poem.log(this.jid);
 	this.login = login;
 	this.passwd = passwd;
 	this.nickname = nickname;
 	this.connection = new Strophe.Connection(service);
-	this.connection.rawInput = rawInput;
-	this.connection.rawOutput = rawOutput;
+	this.connection.rawInput = poem.rawInput;
+	this.connection.rawOutput = poem.rawOutput;
 	this.connection.tchat = this;
 	this._room = {};
 	this._presence = {};
@@ -74,7 +80,7 @@ var Tchat = function(service, login, passwd, nickname) {
 
 };
 
-Tchat.prototype = {
+poem.Tchat.prototype = {
 	handleConnect: function(h) {
 		this._onConnect.append(h.bind(this));
 	},
@@ -104,13 +110,13 @@ Tchat.prototype = {
 	},
 
 	connect_status: function(status) {
-		log("Status: " +status);
+		poem.log("Status: " +status);
 	},
 
 	//Get a room, build it if needed
 	room: function(room) {
 		if(this._room[room] == null) {
-			this._room[room] = new Room(this.connection, room, this.nickname);
+			this._room[room] = new poem.Room(this.connection, room, this.nickname);
 			this._room[room].presence();
 		}
 		return this._room[room];
@@ -123,7 +129,7 @@ Tchat.prototype = {
 };
 
 //return a name from a status
-Tchat.status = function(status) {
+poem.Tchat.status = function(status) {
 	var dico = {};
 	dico[Strophe.Status.CONNECTING] = 'connecting';
 	dico[Strophe.Status.CONNFAIL] = 'connfail';
@@ -137,8 +143,8 @@ Tchat.status = function(status) {
 
 Tchat_onConnect = function(status) {
 	//this == Strophe.Connection
-	var st = Tchat.status(status);
-	log('Strophe is ' + st);
+	var st = poem.Tchat.status(status);
+	poem.log('Strophe is ' + st);
 	for(var i=0; i < this.tchat._onConnect.length; i++) {
 		this.tchat._onConnect[i](st);
 	}
@@ -160,7 +166,7 @@ Tchat_onMessage = function(msg) {
 		to: to,
 		type: type,
 		from: from,
-		from_jid: new Jid(from),
+		from_jid: new poem.Jid(from),
 		subject: subject,
 		nick: nick,
 		body: body
@@ -179,7 +185,7 @@ Tchat_onMessage = function(msg) {
 				this._onChat[i](m);
 			}
 		}
-		log(this.jid);
+		poem.log(this.jid);
 		if(from == this.jid.domain) {
 			for(var i=0; i < this._onServerMessage.length; i++) {
 				this._onServerMessage[i](m);
@@ -197,7 +203,7 @@ Tchat_onPresence = function(pres) {
 	var show = pres.getElementsByTagName('show');
 	var p = {
 		from: from,
-		jid: new Jid(from),
+		jid: new poem.Jid(from),
 		type: type,
 		status: (status.length > 0) ? Strophe.getText(status[0]) : null,
 		show: (show.length > 0) ? Strophe.getText(show[0]) : null
@@ -208,13 +214,16 @@ Tchat_onPresence = function(pres) {
 	return true;
 }
 
-var Room = function(connection, room, pseudo) {
+/**
+ * A chat room
+ */
+poem.Room = function(connection, room, pseudo) {
 	this.connection = connection;
 	this.room = room;
 	this.pseudo = pseudo;
 }
 
-Room.prototype = {
+poem.Room.prototype = {
 	presence: function() {
 		this.connection.send($pres({
 			to: this.room + '/' + this.pseudo}).tree());
