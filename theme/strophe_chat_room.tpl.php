@@ -34,6 +34,13 @@
         }
       }
     });
+    xmpp.handleHeadline(function(headline) {
+      var events = poem.extractEvents(headline.msg);
+      for(var i=0; i < events.length; i++) {
+        var event = events[i];
+        poem.log(event.textContent);
+      }
+    });
     xmpp.handleGroupChat(function(msg) {
       poem.log(msg);
       tchat.append(
@@ -45,7 +52,7 @@
     });
     xmpp.handleServerMessage(function(msg) {
       poem.log(msg);
-      alert(msg.body)
+      alert(msg.body.textContent)
     });
 		xmpp.connect();
 /*
@@ -69,6 +76,10 @@
 			$('#msg').val("");
 			return false;
 		});
+		$('#event').click(function(){
+			room.connection.send(poem.buildEvent('admin@tchat.tld', 'carotte').tree());
+			return false;
+		});
 	});
 
 </script>
@@ -83,3 +94,4 @@
 <input type="submit" value="Tchat" id="doGroup"/>
 </form>
 
+<a href="#" id="event">event</a>

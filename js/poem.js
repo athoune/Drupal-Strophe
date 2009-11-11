@@ -4,16 +4,13 @@ var poem = {
 			console.log(what);
 		}
 	},
-
 	rawInput: function(data) {
 		//log('RECV: ' + data);
 	},
-
 	rawOutput: function(data) {
 		//log('SENT: ' + data);
 	}
 }
-
 
 if (!Array.prototype.append) {
 	Array.prototype.append = function(a) {
@@ -49,6 +46,26 @@ poem.Jid.prototype = {
 	}
 }
 
+/**
+ * Extract event from a message
+ */
+poem.extractEvents = function(message) {
+	var events = []
+	var childs = message.childNodes;
+	for(var i=0; i < childs.length; i++){
+		var child = childs[i];
+		if(child.localName == 'event') {
+			events.append(child);
+		}
+	}
+	return events;
+}
+poem.buildEvent = function(to, action) {
+	return $msg({type:'headline', to:to})
+		.c('event',{})
+		.t(action);
+}
+
 poem.Tchat = function(service, login, passwd, nickname) {
 	this.jid = new poem.Jid(login);
 	poem.log(this.jid);
@@ -67,6 +84,7 @@ poem.Tchat = function(service, login, passwd, nickname) {
 	this._onGroupChat = [];
 	this._onAnyChat = [];
 	this._onServerMessage = [];
+	this._onHeadline= [];
 
 	this.handleConnect(function(status) {
 		if('connected' == status) {
@@ -83,17 +101,25 @@ poem.Tchat = function(service, login, passwd, nickname) {
 					nick = (nick.length > 0) ? Strophe.getText(nick[0]) : null;
 					body = (body.length > 0) ? Strophe.getText(body[0]) : null;
 					var m = {
-						to: to,
-						type: type,
-						from: from,
+						msg:      msg,
+						to:       to,
+						type:     type,
+						from:     from,
 						from_jid: new poem.Jid(from),
-						subject: subject,
-						nick: nick,
-						body: body
+						subject:  subject,
+						nick:     nick,
+						body:     body
 					};
+					if(type == 'headline') {
+						for(var i=0; i < this._onHeadline.length; i++) {
+							this._onHeadline[i](m);
+						}
+					}
 					if(body != null) {
-						for(var i=0; i < this._onAnyChat.length; i++) {
-							this._onAnyChat[i](m);
+						if(type == 'groupchat' || type == 'chat') {
+							for(var i=0; i < this._onAnyChat.length; i++) {
+								this._onAnyChat[i](m);
+							}
 						}
 						if(type == 'groupchat') {
 							for(var i=0; i < this._onGroupChat.length; i++) {
@@ -147,27 +173,24 @@ poem.Tchat.prototype = {
 	handleConnect: function(h) {
 		this._onConnect.append(h.bind(this));
 	},
-
 	handlePresence: function(h) {
 		this._onPresence.append(h.bind(this));
 	},
-	
 	handleChat: function(h) {
 		this._onChat.append(h.bind(this));
 	},
-
 	handleGroupChat: function(h) {
 		this._onGroupChat.append(h.bind(this));
 	},
-
 	handleAnyChat: function(h) {
 		this._onAnyChat.append(h.bind(this));
 	},
-
 	handleServerMessage: function(h) {
 		this._onServerMessage.append(h.bind(this));
 	},
-
+	handleHeadline: function(h) {
+		this._onHeadline.append(h.bind(this));
+	},
 	connect: function() {
 		this.connection.connect(this.login, this.passwd, 
 			function(status) {
@@ -181,11 +204,9 @@ poem.Tchat.prototype = {
 			}
 		);
 	},
-
 	connect_status: function(status) {
 		poem.log("Status: " +status);
 	},
-
 	//Get a room, build it if needed
 	room: function(room) {
 		if(this._room[room] == null) {
@@ -194,7 +215,6 @@ poem.Tchat.prototype = {
 		}
 		return this._room[room];
 	},
-
 	handleMessage: function(from, to, type, body) {
 		tchat.append('<p><b>' + from + '</b> : ' + body + '</p>');
 		return this;
@@ -234,5 +254,5 @@ poem.Room.prototype = {
 				type: 'groupchat'});
 		msg.c('body',{}).t(blabla);
 		this.connection.send(msg.tree());
-	}
+	},
 }
