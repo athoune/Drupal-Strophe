@@ -1,7 +1,8 @@
 var poem = {
 	log : function(what) {
-		if(typeof console != 'undefined')
+		if(typeof console != 'undefined') {
 			console.log(what);
+		}
 	},
 
 	rawInput: function(data) {
@@ -33,8 +34,9 @@ poem.Jid = function(txt) {
 		this.user = t[0];
 		t = t[1].split('/');
 		this.domain = t[0];
-		if(t.length > 0)
+		if(t.length > 0){
 			this.place = t[1];
+		}
 	}
 }
 poem.Jid.prototype = {
@@ -68,8 +70,69 @@ poem.Tchat = function(service, login, passwd, nickname) {
 
 	this.handleConnect(function(status) {
 		if('connected' == status) {
-			this.connection.addHandler(Tchat_onMessage.bind(this), null, 'message', null, null,  null); 
-			this.connection.addHandler(Tchat_onPresence.bind(this), null, 'presence', null, null,  null); 
+			this.connection.addHandler(
+				function(msg) {
+					//this == Strophe.Connection
+					var to = msg.getAttribute('to');
+					var from = msg.getAttribute('from');
+					var type = msg.getAttribute('type');
+					var body = msg.getElementsByTagName('body');
+					var nick = msg.getElementsByTagName('nick');
+					var subject = msg.getElementsByTagName('subject');
+					subject = (subject.length > 0) ? Strophe.getText(subject[0]) : null;
+					nick = (nick.length > 0) ? Strophe.getText(nick[0]) : null;
+					body = (body.length > 0) ? Strophe.getText(body[0]) : null;
+					var m = {
+						to: to,
+						type: type,
+						from: from,
+						from_jid: new poem.Jid(from),
+						subject: subject,
+						nick: nick,
+						body: body
+					};
+					if(body != null) {
+						for(var i=0; i < this._onAnyChat.length; i++) {
+							this._onAnyChat[i](m);
+						}
+						if(type == 'groupchat') {
+							for(var i=0; i < this._onGroupChat.length; i++) {
+								this._onGroupChat[i](m);
+							}
+						}
+						if(type == 'chat') {
+							for(var i=0; i < this._onChat.length; i++) {
+								this._onChat[i](m);
+							}
+						}
+						poem.log(this.jid);
+						if(from == this.jid.domain) {
+							for(var i=0; i < this._onServerMessage.length; i++) {
+								this._onServerMessage[i](m);
+							}
+						}
+					}
+					return true;
+				}.bind(this), null, 'message', null, null,  null); 
+			this.connection.addHandler(
+				function(pres) {
+					var from = pres.getAttribute('from');
+					var to = pres.getAttribute('to');
+					var type = pres.getAttribute('type');
+					var status = pres.getElementsByTagName('status');
+					var show = pres.getElementsByTagName('show');
+					var p = {
+						from: from,
+						jid: new poem.Jid(from),
+						type: type,
+						status: (status.length > 0) ? Strophe.getText(status[0]) : null,
+						show: (show.length > 0) ? Strophe.getText(show[0]) : null
+					};
+					for(var i=0; i < this._onPresence.length; i++) {
+						this._onPresence[i](p);
+					}
+					return true;
+				}.bind(this), null, 'presence', null, null,  null); 
 			this.connection.send($pres().tree());
 		}
 	});
@@ -106,7 +169,17 @@ poem.Tchat.prototype = {
 	},
 
 	connect: function() {
-		this.connection.connect(this.login, this.passwd, Tchat_onConnect);
+		this.connection.connect(this.login, this.passwd, 
+			function(status) {
+				//this == Strophe.Connection
+				var st = poem.Tchat.status(status);
+				poem.log('Strophe is ' + st);
+				for(var i=0; i < this.tchat._onConnect.length; i++) {
+					this.tchat._onConnect[i](st);
+				}
+				return true;
+			}
+		);
 	},
 
 	connect_status: function(status) {
@@ -139,79 +212,6 @@ poem.Tchat.status = function(status) {
 	dico[Strophe.Status.DISCONNECTED] = 'disconnected';
 	dico[Strophe.Status.CONNECTED] = 'connected';
 	return dico[status];
-}
-
-Tchat_onConnect = function(status) {
-	//this == Strophe.Connection
-	var st = poem.Tchat.status(status);
-	poem.log('Strophe is ' + st);
-	for(var i=0; i < this.tchat._onConnect.length; i++) {
-		this.tchat._onConnect[i](st);
-	}
-	return true;
-};
-
-Tchat_onMessage = function(msg) {
-	//this == Strophe.Connection
-	var to = msg.getAttribute('to');
-	var from = msg.getAttribute('from');
-	var type = msg.getAttribute('type');
-	var body = msg.getElementsByTagName('body');
-	var nick = msg.getElementsByTagName('nick');
-	var subject = msg.getElementsByTagName('subject');
-	subject = (subject.length > 0) ? Strophe.getText(subject[0]) : null;
-	nick = (nick.length > 0) ? Strophe.getText(nick[0]) : null;
-	body = (body.length > 0) ? Strophe.getText(body[0]) : null;
-	var m = {
-		to: to,
-		type: type,
-		from: from,
-		from_jid: new poem.Jid(from),
-		subject: subject,
-		nick: nick,
-		body: body
-	};
-	if(body != null) {
-		for(var i=0; i < this._onAnyChat.length; i++) {
-			this._onAnyChat[i](m);
-		}
-		if(type == 'groupchat') {
-			for(var i=0; i < this._onGroupChat.length; i++) {
-				this._onGroupChat[i](m);
-			}
-		}
-		if(type == 'chat') {
-			for(var i=0; i < this._onChat.length; i++) {
-				this._onChat[i](m);
-			}
-		}
-		poem.log(this.jid);
-		if(from == this.jid.domain) {
-			for(var i=0; i < this._onServerMessage.length; i++) {
-				this._onServerMessage[i](m);
-			}
-		}
-	}
-	return true;
-};
-
-Tchat_onPresence = function(pres) {
-	var from = pres.getAttribute('from');
-	var to = pres.getAttribute('to');
-	var type = pres.getAttribute('type');
-	var status = pres.getElementsByTagName('status');
-	var show = pres.getElementsByTagName('show');
-	var p = {
-		from: from,
-		jid: new poem.Jid(from),
-		type: type,
-		status: (status.length > 0) ? Strophe.getText(status[0]) : null,
-		show: (show.length > 0) ? Strophe.getText(show[0]) : null
-	};
-	for(var i=0; i < this._onPresence.length; i++) {
-		this._onPresence[i](p);
-	}
-	return true;
 }
 
 /**
