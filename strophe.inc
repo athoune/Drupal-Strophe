@@ -11,7 +11,7 @@ class strophe_chat {
     $this->passwd = ($passwd != null) ? $passwd : ejabberd_auth_hash($user->name);
     $this->bosh_service = variable_get('strophe_bosh_url', '/http-bind');
     $this->lines = 5;
-    $this->nickname = "Sponge Bob";
+    $this->nickname = is_string($user) ? "Sponge Bob" : $user->name;
   }
 
   /**
