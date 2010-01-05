@@ -2,7 +2,7 @@
 <div id="info"></div>
 <script type="text/javascript">
 
-	$(document).ready(function(){
+	$(function(){
 		var tchat = $('#tchat');
 		var presence = $('#xmpp_presence');
 		var info = $("#info");
