@@ -6,12 +6,7 @@
 		var tchat = $('#tchat');
 		var presence = $('#xmpp_presence');
 		var info = $("#info");
-		var xmpp = new poem.Tchat(
-			'<?php echo $chatroom->bosh_service; ?>',
-			'<?php echo $chatroom->jid; ?>',
-			'<?php echo $chatroom->passwd; ?>',
-			'<?php echo $chatroom->nickname; ?>'
-			);
+		var xmpp = new <?php echo $chatroom->tchat(); ?>;
 		var room;
     xmpp.handleConnect(function(status) {
       if('connected' == status) {

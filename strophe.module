@@ -78,18 +78,8 @@ function strophe_admin_settings() {
   return system_settings_form($form);
 }
 
-class strophe_chatroom {
-  function __construct($jid, $passwd) {
-    $this->jid = $jid;
-    $this->passwd = $passwd;
-    $this->bosh_service = variable_get('strophe_bosh_url', '/http-bind');
-    $this->lines = 5;
-    $this->default_room = 'conference@conference.'. variable_get('strophe_domain', 'jabber.org');
-    $this->nickname = "Sponge Bob";
-  }
-}
-
 function strophe_block($op = 'list', $delta = 0, $edit = array()) {
+  include_once drupal_get_path('module', 'strophe') . '/strophe.inc';
   switch ($op) {
     case 'list':
       $blocks[0] = array(
