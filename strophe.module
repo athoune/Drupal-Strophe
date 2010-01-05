@@ -114,10 +114,8 @@ function strophe_block($op = 'list', $delta = 0, $edit = array()) {
         return;
       }
       if($delta == 0) {
-        include_once drupal_get_path('module', 'ejabberd_auth') . '/drupalAuth.inc';
-        $jid = $user->name . '@' . variable_get('strophe_domain', 'jabber.org') .'/'. variable_get('strophe_place', 'Drupal_Strophe_Client');
         $block['subject'] = t('The chat room');
-        $room = new strophe_chatroom($jid, ejabberd_auth_hash($user->name));
+        $room = new strophe_chatroom($user);
         $room->lines = variable_get('strophe_block_num_lines_' .$delta, 5);
         $room->room = variable_get('strophe_block_room_' .$delta, 'conference');
         $room->nickname = $user->name;
