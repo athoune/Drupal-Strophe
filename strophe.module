@@ -118,7 +118,6 @@ function strophe_block($op = 'list', $delta = 0, $edit = array()) {
         $room = new strophe_chatroom($user);
         $room->lines = variable_get('strophe_block_num_lines_' .$delta, 5);
         $room->room = variable_get('strophe_block_room_' .$delta, 'conference');
-        $room->nickname = $user->name;
         $block['content'] = theme('strophe_chat_room', $room);
         return $block;
       }
