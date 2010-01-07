@@ -1,5 +1,5 @@
 var poem = {
-	log : function(what) {
+	log: function(what) {
 		if(typeof console != 'undefined') {
 			console.log(what);
 		}
@@ -97,6 +97,7 @@ poem.Tchat = function(service, login, passwd, nickname) {
 						nick:     nick,
 						body:     body
 					};
+					poem.log([from, type, body]);
 					if(type == 'headline') {
 						var childs = msg.childNodes;
 						for(var i=0; i < childs.length; i++){
@@ -216,8 +217,18 @@ poem.Tchat.prototype = {
 		return this._room[room];
 	},
 	handleMessage: function(from, to, type, body) {
+		poem.log([from, to, type, body]);
 		tchat.append('<p><b>' + from + '</b> : ' + body + '</p>');
 		return this;
+	},
+	chat: function(to, blabla) {
+		var msg = $msg({
+				to: to,
+				type: 'chat'});
+		msg.c('body',{}).t(blabla);
+		poem.log(msg);
+		poem.log(this.connection);
+		this.connection.send(msg.tree());
 	}
 };
 
