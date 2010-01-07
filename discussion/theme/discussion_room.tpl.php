@@ -26,7 +26,7 @@
 		poem.log(discussion._onChat);
 		discussion.handleEvent(function(event){
 			poem.log(event.textContent);
-			$('#discussion').toggle();
+			$('#discussion').css('background-color', event.textContent);
 		});
 		discussion.connect();
 		$('#discussion-form').submit(function(){
@@ -36,9 +36,10 @@
 			$('#discussion-msg').get(0).value = "";
 			return false;
 		});
-		$('#discussion-event').click(function(){
+		$('.discussion-event').click(function(){
 			poem.log("j'envois un event à " + other);
-			discussion.connection.send(poem.buildEvent(other, 'carotte from ' + discussion.nickname).tree());
+			poem.log($(this).text());
+			discussion.connection.send(poem.buildEvent(other, $(this).text() ).tree());
 			return false;
 		});
 	});
@@ -50,7 +51,10 @@
 	<input type="text" id="discussion-msg"/>
 	<input type="submit" value="Tchat" id="discussion-doTchat"/>
 </form>
-<a href="#" id="discussion-event">Event</a>
+<a href="#" class="discussion-event">red</a><br/>
+<a href="#" class="discussion-event">lime</a><br/>
+<a href="#" class="discussion-event">white</a><br/>
+<a href="#" class="discussion-event">navy</a><br/>
 <div id="discussion" style="border: dotted thin black;height: 100px;overflow: auto;">
 	
 </div>
