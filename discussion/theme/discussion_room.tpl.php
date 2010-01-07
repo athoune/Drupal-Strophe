@@ -21,7 +21,7 @@
 		discussion.handleChat(function(msg){
 			poem.log('je recois un message');
 			poem.log(msg);
-			post(msg.nick, msg.body);
+			post((msg.nick != null) ? msg.nick : msg.from.split('@')[0], msg.body);
 		});
 		poem.log(discussion._onChat);
 		discussion.handleEvent(function(event){
