@@ -3,10 +3,24 @@
  * Implementation of hook_init().
  */
 function strophe_init() {
-  $js = array('b64', 'chat', 'md5', 'sha1', 'strophe', 'poem', 'drupal');
+  global $user;
+  include_once drupal_get_path('module', 'ejabberd_auth') . '/drupalAuth.inc';
+  include_once drupal_get_path('module', 'strophe') . '/strophe.inc';
+  drupal_add_js(array(
+    'xmpp' => array(
+      'bosh_service' => variable_get('strophe_bosh_url', '/http-bind'),
+      'jid' => strophe_jid($user),
+      'passwd' => ejabberd_auth_hash($user->name),
+      'nickname' => $user->name
+      )
+    )
+  , 'setting');
+  $js = array('b64', 'chat', 'md5', 'sha1', 'strophe', 'poem', 'drupal', 'init');
   foreach($js as $j){
     drupal_add_js(drupal_get_path('module', 'strophe') ."/js/$j.js");
   }
+  
+  drupal_add_js(drupal_get_path('module', 'strophe') ."/js/connect.js", 'theme', 'footer');
 }
 
 function strophe_menu() {
@@ -115,7 +129,7 @@ function strophe_block($op = 'list', $delta = 0, $edit = array()) {
       }
       if($delta == 0) {
         $block['subject'] = t('The chat room');
-        $room = new strophe_chatroom($user);
+        $room = new strophe_poem($user);
         $room->lines = variable_get('strophe_block_num_lines_' .$delta, 5);
         $room->room = variable_get('strophe_block_room_' .$delta, 'conference');
         $block['content'] = theme('strophe_chat_room', $room);
