@@ -1,0 +1,6 @@
+name = XMPP multi user chatroom
+description = XMPP (Jabber) multi user chatroom
+core = 6.x
+package = XMPP
+dependencies[] = strophe
+version = 0.1

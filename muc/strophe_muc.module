@@ -1,0 +1,61 @@
+<?php
+
+function strophe_muc_block($op = 'list', $delta = 0, $edit = array()) {
+  include_once drupal_get_path('module', 'strophe') . '/strophe.inc';
+  switch ($op) {
+    case 'list':
+      $blocks[0] = array(
+        'info' => t('Multi User Chat room'),
+        'cache' => BLOCK_NO_CACHE,
+      );
+      $blocks[1] = array(
+        'info' => t('Connected chatters'),
+        'cache' => BLOCK_NO_CACHE,
+      );
+      return $blocks;
+    case 'configure':
+      if ($delta == 0) {
+          $form['strophe_block_num_lines'] = array(
+            '#type' => 'textfield',
+            '#title' => t('Number of chat line to display'),
+            '#default_value' => variable_get('strophe_block_num_lines', 5),
+          );
+      }
+      $form['strophe_block_room'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Room name'),
+        '#default_value' => variable_get('strophe_block_room_' .$delta, 'conference'),
+        );
+      return $form;
+    case 'save':
+      variable_set('strophe_block_num_lines_' .$delta, (int)$edit['strophe_block_num_lines']);
+      break;
+    case 'view':
+      global $user;
+      if(0 == $user->uid) {
+        return;
+      }
+      if($delta == 0) {
+        $block['subject'] = t('The chat room');
+        $room = new strophe_poem($user);
+        $room->lines = variable_get('strophe_block_num_lines_' .$delta, 5);
+        $room->room = variable_get('strophe_block_room_' .$delta, 'conference');
+        $block['content'] = theme('strophe_chat_room', $room);
+        return $block;
+      }
+  }
+}
+  
+/**
+ * Implementation of hook_theme
+ */
+function strophe_muc_theme() {
+  $path = drupal_get_path('module', 'strophe_muc');
+  return array(
+    'strophe_chat_room' => array(
+      'path' => "$path/theme",
+      'template' => 'strophe_chat_room',
+      'arguments' => array('chatroom' => NULL)),
+  );
+
+}
