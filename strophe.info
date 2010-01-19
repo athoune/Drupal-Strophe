@@ -1,4 +1,4 @@
-name = XMPP chat
+name = XMPP BOSH
 description = Strophe integration for XMPP (Jabber) chat with BOSH
 core = 6.x
 package = XMPP
