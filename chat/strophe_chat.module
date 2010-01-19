@@ -5,9 +5,9 @@
  */
 function strophe_chat_menu() {
   $items['discussion-with/%user'] = array(
-    'page callback' => 'discussion_page',
+    'page callback' => 'strophe_chat_page',
     'page arguments' => array(1),
-    'access callback' => 'discussion_access',
+    'access callback' => 'strophe_chat_access',
     'access arguments' => array(1),
     'type' => MENU_LOCAL_TASK,
     );
@@ -17,7 +17,7 @@ function strophe_chat_menu() {
 function strophe_chat_page($other) {
   include_once drupal_get_path('module', 'strophe') .'/strophe.inc';
   global $user;
-  return theme('discussion_room', new strophe_poem($user), new strophe_user($other));
+  return theme('discussion_room', new strophe_user($other));
 }
 
 /**
@@ -29,7 +29,7 @@ function strophe_chat_theme() {
     'discussion_room' => array(
       'path' => "$path/theme",
       'template' => 'discussion_room',
-      'arguments' => array('chatroom' => NULL, 'other' => NULL)),
+      'arguments' => array('other' => NULL)),
   );
   
 }

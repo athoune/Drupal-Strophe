@@ -2,7 +2,6 @@
 	$(function(){
 		var other = '<?php echo $other->jid;?>';
 		poem.log('xmpp', other);
-<?php echo $chatroom->tchat(); ?>		
 		xmpp.handleEvent(function(event){
 			poem.log(event.textContent);
 		});
@@ -23,7 +22,7 @@
 			poem.log(msg);
 			post((msg.nick != null) ? msg.nick : msg.from.split('@')[0], msg.body);
 		});
-		poem.log(discussion._onChat);
+		poem.log(xmpp._onChat);
 		xmpp.handleEvent(function(event){
 			poem.log(event.textContent);
 			$('#discussion').css('background-color', event.textContent);
