@@ -61,13 +61,6 @@ function strophe_admin_settings() {
     '#default_value' => variable_get('strophe_place', 'Drupal_Strophe_Client'),
     '#description' => t("XMPP user can be connected more than one times, with different place (the name of the client, or the name of the place where is the chatter is)"),
   );
-  $form['strophe_default_room'] = array(
-    '#type' => 'textfield',
-    '#title' => 'Default room name',
-    '#default_value' => variable_get('strophe_default_room', 'drupal'),
-    '#description' => t("Name of the default MUC (Multi User Chatroom)"),
-    
-  );
   $form['strophe_bot'] = array(
     '#title' => t('Bot'),
     '#type' => 'fieldset',

@@ -57,5 +57,28 @@ function strophe_muc_theme() {
       'template' => 'strophe_chat_room',
       'arguments' => array('chatroom' => NULL)),
   );
-
 }
+
+function strophe_muc_menu() {
+  $items['admin/settings/strophe/muc'] = array(
+    'description' => 'Multi User Chatroom with XMPP over HTTP',
+    'title' => 'MUC with BOSH',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('strophe_muc_admin_settings'),
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_NORMAL_ITEM,
+    );
+  return $items;
+}
+
+function strophe_muc_admin_settings() {
+  $form['strophe_default_room'] = array(
+    '#type' => 'textfield',
+    '#title' => 'Default room name',
+    '#default_value' => variable_get('strophe_default_room', 'drupal'),
+    '#description' => t("Name of the default MUC (Multi User Chatroom)"),
+    
+  );
+  return system_settings_form($form);
+}
+
