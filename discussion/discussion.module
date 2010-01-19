@@ -17,7 +17,7 @@ function discussion_menu() {
 function discussion_page($other) {
   include_once drupal_get_path('module', 'strophe') .'/strophe.inc';
   global $user;
-  return theme('discussion_room', new strophe_chat($user), new strophe_user($other));
+  return theme('discussion_room', new strophe_poem($user), new strophe_user($other));
 }
 
 /**

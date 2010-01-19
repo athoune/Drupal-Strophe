@@ -6,7 +6,6 @@ function strophe_jid($user) {
 		. variable_get('strophe_domain', 'jabber.org') .'/'
 		. variable_get('strophe_place', 'Drupal_Strophe_Client');
 }
-
 class strophe_user {
   function __construct($user) {
     $this->jid = strophe_jid($user);
@@ -14,16 +13,18 @@ class strophe_user {
   }
 }
 
-class strophe_chat extends strophe_user {
+class strophe_poem {
   /**
    * $user can be a jid, or a drupal user object
    * $password is optional
    */
   function __construct($user, $passwd = null) {
-    parent::__construct($user);
+    $this->jid = strophe_jid($user);
+    $this->nickname = is_string($user) ? "Sponge Bob" : $user->name;
     $this->passwd = ($passwd != null) ? $passwd : ejabberd_auth_hash($user->name);
     $this->bosh_service = variable_get('strophe_bosh_url', '/http-bind');
     $this->lines = 5;
+    $this->default_room = 'conference@conference.'. variable_get('strophe_domain', 'jabber.org');
   }
 
   /**
@@ -32,11 +33,17 @@ class strophe_chat extends strophe_user {
   function tchat() {
     return "poem.Tchat('$this->bosh_service','$this->jid','$this->passwd','$this->nickname')";
   }
-}
 
-class strophe_chatroom extends strophe_chat {
-  function __construct($jid, $passwd = null) {
-    parent::__construct($jid, $passwd);
-    $this->default_room = 'conference@conference.'. variable_get('strophe_domain', 'jabber.org');
+  function js_init() {
+	static $xmpp = TRUE;
+	if($xmpp) {
+		$xmpp = FALSE;
+    return <<<EOF
+if(typeof xmpp == 'undefined') {
+	var xmpp = new poem.Tchat('$this->bosh_service','$this->jid','$this->passwd','$this->nickname');
+}
+EOF;
+	}
+	return '';
   }
 }
