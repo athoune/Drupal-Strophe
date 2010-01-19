@@ -46,12 +46,6 @@ poem.Jid.prototype = {
 	}
 }
 
-poem.buildEvent = function(to, action) {
-	return $msg({type:'headline', to:to})
-		.c('event',{})
-		.t(action);
-}
-
 poem.Tchat = function(service, login, passwd, nickname) {
 	this.jid = new poem.Jid(login);
 	poem.log(this.jid);
@@ -229,6 +223,13 @@ poem.Tchat.prototype = {
 		poem.log(msg);
 		poem.log(this.connection);
 		this.connection.send(msg.tree());
+	},
+	send_event: function(to, blabla) {
+		this.connection.send(
+			$msg({type:'headline', to:to})
+				.c('event',{})
+				.t(blabla).tree()
+		);
 	}
 };
 
