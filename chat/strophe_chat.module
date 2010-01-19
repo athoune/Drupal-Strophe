@@ -3,7 +3,7 @@
 /**
  * Implementation of hook_menu
  */
-function discussion_menu() {
+function strophe_chat_menu() {
   $items['discussion-with/%user'] = array(
     'page callback' => 'discussion_page',
     'page arguments' => array(1),
@@ -14,7 +14,7 @@ function discussion_menu() {
   return $items;
 }
 
-function discussion_page($other) {
+function strophe_chat_page($other) {
   include_once drupal_get_path('module', 'strophe') .'/strophe.inc';
   global $user;
   return theme('discussion_room', new strophe_poem($user), new strophe_user($other));
@@ -23,8 +23,8 @@ function discussion_page($other) {
 /**
  * Implementation of hook_theme
  */
-function discussion_theme() {
-  $path = drupal_get_path('module', 'discussion');
+function strophe_chat_theme() {
+  $path = drupal_get_path('module', 'strophe_chat');
   return array(
     'discussion_room' => array(
       'path' => "$path/theme",
@@ -34,6 +34,6 @@ function discussion_theme() {
   
 }
 
-function discussion_access($arg) {
+function strophe_chat_access($arg) {
   return TRUE;
 }
