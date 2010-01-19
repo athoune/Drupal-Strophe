@@ -42,6 +42,8 @@ poem.Jid.prototype = {
 	},
 	isRoom: function() {
 		//[TODO] un peu naïf?
+		if( this.domain == null)
+			return false;
 		return this.domain.split('.')[0] == 'conference';
 	}
 }
