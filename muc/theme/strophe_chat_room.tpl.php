@@ -11,7 +11,7 @@
     xmpp.handleConnect(function(status) {
       if('connected' == status) {
         info.empty();
-        room = this.room('<?php echo $chatroom->default_room; ?>', 'Drupal');
+        room = this.room('<?php echo $chatroom->room; ?>', 'Drupal');
         room.presence();
       } else {
         info.text(status);
@@ -67,7 +67,7 @@
 			return false;
 		});
 		$('#event').click(function(){
-			room.connection.send(poem.buildEvent('admin@tchat.tld', 'carotte').tree());
+			room.send_event('admin@tchat.tld', 'carotte');
 			return false;
 		});
 	});
