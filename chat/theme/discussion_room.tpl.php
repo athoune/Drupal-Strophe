@@ -38,7 +38,7 @@
 		$('.discussion-event').click(function(){
 			poem.log("j'envois un event à " + other);
 			poem.log($(this).text());
-			xmpp.send_event(other, $(this).text() );
+			xmpp.event(other, $(this).text() );
 			return false;
 		});
 	});
