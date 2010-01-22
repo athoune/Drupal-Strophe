@@ -226,7 +226,7 @@ poem.Tchat.prototype = {
 		poem.log(this.connection);
 		this.connection.send(msg.tree());
 	},
-	send_event: function(to, blabla) {
+	event: function(to, blabla) {
 		this.connection.send(
 			$msg({type:'headline', to:to})
 				.c('event',{})
@@ -269,4 +269,11 @@ poem.Room.prototype = {
 		msg.c('body',{}).t(blabla);
 		this.connection.send(msg.tree());
 	},
+	event: function(blabla) {
+		this.connection.send($msg({
+				type:'headline',
+				to:this.room})
+			.c('event',{})
+			.t(blabla).tree());
+	}
 }

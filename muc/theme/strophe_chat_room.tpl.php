@@ -2,12 +2,12 @@
 <div id="info"></div>
 <script type="text/javascript">
 
-	$(function(){
-		var tchat = $('#tchat');
-		var presence = $('#xmpp_presence');
-		var info = $("#info");
-		poem.log("settings");
-		var room;
+  $(function(){
+    var tchat = $('#tchat');
+    var presence = $('#xmpp_presence');
+    var info = $("#info");
+    poem.log("settings");
+    var room;
     xmpp.handleConnect(function(status) {
       if('connected' == status) {
         info.empty();
@@ -60,6 +60,7 @@
 				$('#msg').get(0).value
 			);
 			$('#msg').get(0).value = "";
+			return false;
 		});
 		$('#xmpp_form').submit(function() {
 			room.message($('#msg').val());
@@ -67,7 +68,7 @@
 			return false;
 		});
 		$('#event').click(function(){
-			room.send_event('admin@tchat.tld', 'carotte');
+			room.event('admin@tchat.tld', 'carotte');
 			return false;
 		});
 	});
