@@ -16,7 +16,6 @@ function strophe_chat_menu() {
 
 function strophe_chat_page($other) {
   include_once drupal_get_path('module', 'strophe') .'/strophe.inc';
-  global $user;
   return theme('chat_room', new strophe_user($other));
 }
 

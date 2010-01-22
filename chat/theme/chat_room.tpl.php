@@ -27,7 +27,6 @@
 			poem.log(event.textContent);
 			$('#discussion').css('background-color', event.textContent);
 		});
-		xmpp.connect();
 		$('#discussion-form').submit(function(){
 			var msg = $('#discussion-msg').get(0).value;
 			post(xmpp.nickname, msg);
