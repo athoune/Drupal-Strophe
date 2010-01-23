@@ -9,4 +9,9 @@ $(function() {
 		Drupal.settings.xmpp.nickname
 	);
 	poem.log(xmpp);
+	xmpp.handleConnect(function(status) {
+		if('connected' == status) {
+			xmpp.presence();
+		}
+	});
 })

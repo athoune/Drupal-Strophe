@@ -232,7 +232,10 @@ poem.Tchat.prototype = {
 				.c('event',{})
 				.t(blabla).tree()
 		);
-	}
+	},
+	presence: function() {
+		this.connection.send($pres({}).tree());
+	},
 };
 
 //return a name from a status
