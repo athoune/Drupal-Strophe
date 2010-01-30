@@ -12,6 +12,7 @@ $(function() {
 	xmpp.handleConnect(function(status) {
 		if('connected' == status) {
 			xmpp.presence();
+			xmpp.roster();
 		}
 	});
 })
