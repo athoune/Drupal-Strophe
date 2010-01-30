@@ -234,8 +234,15 @@ poem.Tchat.prototype = {
 		);
 	},
 	presence: function() {
-		this.connection.send($pres({}).tree());
+		this.connection.send($pres({})
+			.c('status', {}).t('available')
+			.up()
+			.c('priority', {}).t(5)
+		.tree());
 	},
+	roster: function() {
+		this.connection.send($iq({type: 'get', id:'_roster_'}).c('query', {xmlns:Strophe.NS.ROSTER}).tree());
+	}
 };
 
 //return a name from a status
