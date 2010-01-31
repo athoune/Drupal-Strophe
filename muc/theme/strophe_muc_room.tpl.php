@@ -9,16 +9,18 @@
     poem.log("settings");
     var room;
     xmpp.handleConnect(function(status) {
-      if('connected' == status) {
+      if(Strophe.Status.CONNECTED == status) {
         info.empty();
-        room = this.room('<?php echo $chatroom->room; ?>', 'Drupal');
+        room = this.room('<?php echo $chatroom->room; ?>');
         room.presence();
       } else {
-        info.text(status);
+        info.text(poem.Tchat.status(status));
         presence.empty();
       }
+      return true;
     });
     xmpp.handlePresence(function(pres) {
+      poem.log(['muc presence', pres], this._presence);
       presence.empty();
       for(var p in this._presence) {
         var pp = this._presence[p];
