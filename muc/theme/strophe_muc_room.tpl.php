@@ -21,6 +21,12 @@
             presence.append($('<li>').attr('id', 'user-' + u).text(u));
           }
         });
+        room.handleNotAvailable(function(pres){
+          var u = pres.jid.place;
+          if(presence.data('users')[u] != null) {
+            presence.find('#user-' + u).remove();
+          }
+        });
         room.presence();
       } else {
         info.text(poem.Tchat.status(status));
