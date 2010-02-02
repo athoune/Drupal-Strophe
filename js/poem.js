@@ -257,6 +257,15 @@ poem.Tchat.prototype = {
 //			.up()
 //			.c('priority', {}).t(5)
 		.tree());
+		var that = this;
+		$(window).unload(function(evt) {
+			that.connection.send(
+				$pres({ type: "unavailable"})
+				.c('status').t('logged out')
+				.tree());
+			that.connection.flush();
+			return true;
+		});
 	},
 	roster: function() {
 		this.connection.sendIQ(
