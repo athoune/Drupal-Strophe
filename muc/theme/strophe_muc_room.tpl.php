@@ -12,24 +12,21 @@
       if(Strophe.Status.CONNECTED == status) {
         info.empty();
         room = this.room('<?php echo $chatroom->room; ?>');
+        presence.empty();
+        presence.data('users', {});
+        room.handleAvailable(function(pres){
+          var u = pres.jid.place;
+          if(presence.data('users')[u] == null) {
+            presence.data('users')[u] = true;
+            presence.append($('<li>').attr('id', 'user-' + u).text(u));
+          }
+        });
         room.presence();
       } else {
         info.text(poem.Tchat.status(status));
         presence.empty();
       }
       return true;
-    });
-    xmpp.handlePresence(function(pres) {
-      poem.log(['muc presence', pres], this._presence);
-      presence.empty();
-      for(var p in this._presence) {
-        var pp = this._presence[p];
-        if(pp.jid.isRoom()) {
-          presence.append(
-            $('<li>').text(pp.jid.place)
-          );
-        }
-      }
     });
     xmpp.handleEvent(function(event) {
         poem.log(event.textContent);

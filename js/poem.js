@@ -5,18 +5,17 @@ var poem = {
 		}
 	},
 	rawInput: function(data) {
-		poem.log('RECV: ' + data);
+		//poem.log('RECV: ' + data);
 	},
 	rawOutput: function(data) {
 		//poem.log('SENT: ' + data);
+	},
+	/* adding a method Array.protoype break silly code wich iterate over array*/
+	append: function(haystack, needle) {
+		haystack[haystack.length] = needle;
+		return haystack;
 	}
-}
-
-if (!Array.prototype.append) {
-	Array.prototype.append = function(a) {
-		this[this.length] = a;
-	}
-}
+};
 
 /**
  * Jabber InDentification
@@ -35,7 +34,7 @@ poem.Jid = function(txt) {
 			this.place = t[1];
 		}
 	}
-}
+};
 poem.Jid.prototype = {
 	toString: function() {
 		return this.user + '@' + this.domain + '/' + this.place;
@@ -49,7 +48,7 @@ poem.Jid.prototype = {
 	roomName: function() {
 		return this.user + '@' + this.domain;
 	}
-}
+};
 
 poem.Tchat = function(service, login, passwd, nickname) {
 	this.jid = new poem.Jid(login);
@@ -85,9 +84,9 @@ poem.Tchat = function(service, login, passwd, nickname) {
 	this.handlePresence(function(pres) {
 		poem.log(["prez", pres]);
 		if(pres.jid.isRoom()) {
-			this._room[pres.jid.roomName()].buddies[pres.place] = pres.status;
+			this._room[pres.jid.roomName()].triggerPresence(pres);
 		}
-		poem.log(['the rooms', this._room[pres.jid.roomName()]]);
+		poem.log(['the rooms', pres.jid.roomName(), this._room[pres.jid.roomName()]]);
 		this._presence[pres.from] = pres;
 	});
 
@@ -181,28 +180,28 @@ poem.Tchat.prototype = {
 		return true;
 	},
 	handleConnect: function(h) {
-		this._onConnect.append(h.bind(this));
+		this._onConnect = poem.append(this._onConnect, h.bind(this));
 	},
 	handlePresence: function(h) {
-		this._onPresence.append(h.bind(this));
+		this._onPresence = poem.append(this._onPresence, h.bind(this));
 	},
 	handleChat: function(h) {
-		this._onChat.append(h.bind(this));
+		this._onChat = poem.append(this._onChat, h.bind(this));
 	},
 	handleGroupChat: function(h) {
-		this._onGroupChat.append(h.bind(this));
+		this._onGroupChat = poem.append(this._onGroupChat, h.bind(this));
 	},
 	handleAnyChat: function(h) {
-		this._onAnyChat.append(h.bind(this));
+		this._onAnyChat = poem.append(this._onAnyChat, h.bind(this));
 	},
 	handleServerMessage: function(h) {
-		this._onServerMessage.append(h.bind(this));
+		this._onServerMessage = poem.append(this._onServerMessage, h.bind(this));
 	},
 	handleHeadline: function(h) {
-		this._onHeadline.append(h.bind(this));
+		this._onHeadline = poem.append(this._onHeadline, h.bind(this));
 	},
 	handleEvent: function(h) {
-		this._onEvent.append(h.bind(this));
+		this._onEvent = poem.append(this._onEvent, h.bind(this));
 	},
 	connect: function() {
 		this.connection.connect(this.login, this.passwd, 
@@ -310,7 +309,7 @@ poem.Tchat.status = function(status) {
 	dico[Strophe.Status.DISCONNECTED] = 'disconnected';
 	dico[Strophe.Status.CONNECTED] = 'connected';
 	return dico[status];
-}
+};
 
 /**
  * A chat room
@@ -320,9 +319,29 @@ poem.Room = function(connection, room, pseudo) {
 	this.room = room;
 	this.pseudo = pseudo;
 	this.buddies = {};
-}
+	this._presence = [];
+	this._available = [];
+	this._notAvailable = [];
+	this.handlePresence(function(pres){
+		poem.log(["presence", pres.type, pres.from]);
+		if(pres.type == 'available') {
+			for(var i=0; i < this._available.length; i++) {
+				this._available[i](pres);
+			}
+		} else {
+			for(var i=0; i < this._notAvailable.length; i++) {
+				this._notAvailable[i](pres);
+			}
+		}
+	});
+	this.handleAvailable(function(pres) {
+		this.buddies = poem.append(this.buddies, pres.from);
+	});
+	//[TODO] handle remove
+};
 
 poem.Room.prototype = {
+	/** Send presence to that room*/
 	presence: function() {
 		var that = this;
 		$(window).unload(function(evt) {
@@ -342,6 +361,7 @@ poem.Room.prototype = {
 			.c('status').t('available')
 			.tree());
 	},
+	/** send message to that room */
 	message: function(blabla) {
 		var msg = $msg({
 				to: this.room,
@@ -349,11 +369,29 @@ poem.Room.prototype = {
 		msg.c('body',{}).t(blabla);
 		this.connection.send(msg.tree());
 	},
+	/** send an arbitrary event to that room */
 	event: function(blabla) {
 		this.connection.send($msg({
 				type:'headline',
 				to:this.room})
 			.c('event',{})
 			.t(blabla).tree());
+	},
+	/** register a new presence handler for that room 
+	 * the handler will receive the presence object
+	*/
+	handlePresence: function(handler) {
+		this._presence = poem.append(this._presence, handler.bind(this));
+	},
+	triggerPresence: function(pres) {
+		for(var i=0; i < this._presence.length; i++) {
+			this._presence[i](pres);
+		}
+	},
+	handleAvailable: function(handler) {
+		this._available = poem.append(this._available, handler.bind(this));
+	},
+	handleNotAvailable: function(handler) {
+		this._notAvailable = poem.append(this._notAvailable, handler.bind(this));
 	}
-}
+};
