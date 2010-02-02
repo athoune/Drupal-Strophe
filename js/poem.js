@@ -108,7 +108,7 @@ poem.Tchat.prototype = {
 		var p = {
 			from: from,
 			jid: new poem.Jid(from),
-			type: type,
+			type: (type == null) ? 'available' : type,
 			status: (status.length > 0) ? Strophe.getText(status[0]) : null,
 			show: (show.length > 0) ? Strophe.getText(show[0]) : null
 		};
@@ -315,6 +315,17 @@ poem.Room = function(connection, room, pseudo) {
 
 poem.Room.prototype = {
 	presence: function() {
+		var that = this;
+		$(window).unload(function(evt) {
+			that.connection.send(
+				$pres({to: that.room + '/' + that.pseudo, type: "unavailable"})
+				.c('x', {xmlns:"http://jabber.org/protocol/muc"})
+				.up()
+				.c('status').t('logged out')
+				.tree());
+			that.connection.flush();
+			return true;
+		});
 		this.connection.send(
 			$pres({to: this.room + '/' + this.pseudo})
 			.c('x', {xmlns:"http://jabber.org/protocol/muc"})
