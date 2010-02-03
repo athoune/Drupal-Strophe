@@ -48,6 +48,7 @@ function strophe_muc_block($op = 'list', $delta = 0, $edit = array()) {
         $room = new strophe_room();
         $room->lines = variable_get('strophe_block_num_lines_' .$delta, 5);
         $room->room = variable_get('strophe_block_room_' .$delta, 'conference') . '@conference.'. variable_get('strophe_domain', 'jabber.org');
+        drupal_add_js(array('room' => $room->room), 'setting'); //[FIXME] handle multiple chat room
         $block['content'] = theme('strophe_muc_room', $room);
         return $block;
       }
@@ -65,6 +66,10 @@ function strophe_muc_theme() {
       'template' => 'strophe_muc_room',
       'arguments' => array('chatroom' => NULL)),
   );
+}
+
+function template_preprocess_strophe_muc_room(&$variables) {
+  drupal_add_js(drupal_get_path('module', 'strophe') . '/muc/muc.js');
 }
 
 function strophe_muc_menu() {
