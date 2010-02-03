@@ -1,4 +1,10 @@
+/**
+ * @namespace poem namespce
+ */
 var poem = {
+    /**
+    * simple logger
+    */
 	log: function(what) {
 		if(typeof console != 'undefined') {
 			console.log(what);
@@ -10,7 +16,10 @@ var poem = {
 	rawOutput: function(data) {
 		//poem.log('SENT: ' + data);
 	},
-	/* adding a method Array.protoype break silly code wich iterate over array*/
+	/**
+	 * append helper for Array class
+	 * adding a method Array.protoype break silly code wich iterate over array
+	 */
 	append: function(haystack, needle) {
 		haystack[haystack.length] = needle;
 		return haystack;
@@ -18,7 +27,8 @@ var poem = {
 };
 
 /**
- * Jabber InDentification
+ * @class Jabber InDentification
+ * @constructor
  */
 poem.Jid = function(txt) {
 	this.domain = null;
@@ -50,6 +60,15 @@ poem.Jid.prototype = {
 	}
 };
 
+/**
+ * High level class wrapping strophe functionality
+ * @class XMPP server
+ * @constructor
+ * @param service the BOSH url
+ * @param login Login
+ * @param passwd Password
+ * @param nickname Nickname
+ */
 poem.Tchat = function(service, login, passwd, nickname) {
 	this.jid = new poem.Jid(login);
 	this.login = login;
@@ -139,40 +158,40 @@ poem.Tchat.prototype = {
 			body:     body
 		};
 		poem.log([from, type, body]);
+		var i;
 		if(type == 'headline') {
 			var childs = msg.childNodes;
-			for(var i=0; i < childs.length; i++){
+			for(i=0; i < childs.length; i++){
 				var child = childs[i];
 				if(child.localName == 'event') {
-					for(var i=0; i < this._onEvent.length; i++) {
+					for(i=0; i < this._onEvent.length; i++) {
 						this._onEvent[i](child);
 					}
 				}
 			}
-			
-			for(var i=0; i < this._onHeadline.length; i++) {
+			for(i=0; i < this._onHeadline.length; i++) {
 				this._onHeadline[i](msg);
 			}
 		}
 		if(body != null) {
 			if(type == 'groupchat' || type == 'chat') {
-				for(var i=0; i < this._onAnyChat.length; i++) {
+				for(i=0; i < this._onAnyChat.length; i++) {
 					this._onAnyChat[i](m);
 				}
 			}
 			if(type == 'groupchat') {
-				for(var i=0; i < this._onGroupChat.length; i++) {
+				for(i=0; i < this._onGroupChat.length; i++) {
 					this._onGroupChat[i](m);
 				}
 			}
 			if(type == 'chat') {
-				for(var i=0; i < this._onChat.length; i++) {
+				for(i=0; i < this._onChat.length; i++) {
 					this._onChat[i](m);
 				}
 			}
 			poem.log(this.jid);
 			if(from == this.jid.domain) {
-				for(var i=0; i < this._onServerMessage.length; i++) {
+				for(i=0; i < this._onServerMessage.length; i++) {
 					this._onServerMessage[i](m);
 				}
 			}
@@ -217,7 +236,9 @@ poem.Tchat.prototype = {
 	/*connect_status: function(status) {
 		poem.log("Status: " +status);
 	},*/
-	//Get a room, build it if needed
+	/**
+	 * Get a room, build it if needed
+	 */
 	room: function(room) {
 		poem.log('Room: ' + room);
 		if(this._room[room] == null) {
@@ -298,7 +319,10 @@ poem.Tchat.prototype = {
 	}
 };
 
-//return a name from a status
+/**
+ * Helper for connection status
+ * return a name from a status
+ */
 poem.Tchat.status = function(status) {
 	var dico = {};
 	dico[Strophe.Status.CONNECTING] = 'connecting';
@@ -312,7 +336,8 @@ poem.Tchat.status = function(status) {
 };
 
 /**
- * A chat room
+ * @class A chat room
+ * @constructor
  */
 poem.Room = function(connection, room, pseudo) {
 	this.connection = connection;
@@ -324,12 +349,13 @@ poem.Room = function(connection, room, pseudo) {
 	this._notAvailable = [];
 	this.handlePresence(function(pres){
 		poem.log(["presence", pres.type, pres.from]);
+		var i;
 		if(pres.type == 'available') {
-			for(var i=0; i < this._available.length; i++) {
+			for(i=0; i < this._available.length; i++) {
 				this._available[i](pres);
 			}
 		} else {
-			for(var i=0; i < this._notAvailable.length; i++) {
+			for(i=0; i < this._notAvailable.length; i++) {
 				this._notAvailable[i](pres);
 			}
 		}
