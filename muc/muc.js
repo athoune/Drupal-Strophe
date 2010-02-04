@@ -7,7 +7,7 @@ $(function(){
     xmpp.handleConnect(function(status) {
         if(Strophe.Status.CONNECTED == status) {
             info.empty();
-            room = this.room(Drupal.settings.room);
+            room = this.room(Drupal.settings.strophe.room);
             presence.empty();
             presence.data('users', {});
             room.handleAvailable(function(pres){
