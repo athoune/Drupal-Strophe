@@ -74,10 +74,15 @@ poem.Tchat = function(service, login, passwd, nickname) {
 	this.login = login;
 	this.passwd = passwd;
 	this.nickname = nickname;
+
 	this.connection = new Strophe.Connection(service);
 	this.connection.rawInput = poem.rawInput;
 	this.connection.rawOutput = poem.rawOutput;
-	this.connection.tchat = this;
+	//this.connection.tchat = this;
+	this.connection.addHandler(this.__message.bind(this),  null, 'message',  null, null, null); 
+	this.connection.addHandler(this.__iq.bind(this),       null, 'iq',       null, null, null);
+	this.connection.addHandler(this.__presence.bind(this), null, 'presence', null, null, null);
+
 	this._room = {};
 	this._presence = {};
 	this._onConnect = [];
@@ -88,27 +93,35 @@ poem.Tchat = function(service, login, passwd, nickname) {
 	this._onServerMessage = [];
 	this._onHeadline= [];
 	this._onEvent = [];
+	this._preConnect = [];
 
-	this.handleConnect(function(status) {
-		if(Strophe.Status.CONNECTED == status) {
-			this.connection.addHandler(this.__message.bind(this),  null, 'message',  null, null, null); 
-			this.connection.addHandler(this.__iq.bind(this),       null, 'iq',       null, null, null);
-			this.connection.addHandler(this.__presence.bind(this), null, 'presence', null, null, null);
-			this.presence();
-		}
-		if(Strophe.Status.DISCONNECTED == status) {
-			poem.log("Disconnected");
-		}
-	});
 	this.handlePresence(function(pres) {
 		poem.log(["prez", pres]);
 		if(pres.jid.isRoom()) {
 			this._room[pres.jid.roomName()].triggerPresence(pres);
 		}
-		poem.log(['the rooms', pres.jid.roomName(), this._room[pres.jid.roomName()]]);
+		poem.log(['the rooms', pres.jid.isRoom(), pres.jid.roomName(), pres.jid, this._room, this._room[pres.jid.roomName()]]);
 		this._presence[pres.from] = pres;
 	});
-
+	this.handleConnect(function(status) {
+		if(Strophe.Status.CONNECTED == status) {
+			this.presence();
+			//poem.log(['rooms', this._room]);
+			for(r in this._room) {
+				var room = this._room[r];
+				//poem.log(['room presence', room.room]);
+				if(room.autopresence) {
+					room.presence();
+				}
+			}
+		}
+		return true;
+	});
+	this.handleGroupChat(function(message) {
+		if(message.from_jid.isRoom()) {
+			this._room[message.from_jid.roomName()].triggerMessage(message);
+		}
+	});
 };
 
 poem.Tchat.prototype = {
@@ -201,6 +214,12 @@ poem.Tchat.prototype = {
 	handleConnect: function(h) {
 		this._onConnect = poem.append(this._onConnect, h.bind(this));
 	},
+	/**
+	 * Before connection
+	 */
+	handlePreConnect: function(h) {
+		this._preConnect = poem.append(this._preConnect, h.bind(this));
+	},
 	handlePresence: function(h) {
 		this._onPresence = poem.append(this._onPresence, h.bind(this));
 	},
@@ -223,11 +242,19 @@ poem.Tchat.prototype = {
 		this._onEvent = poem.append(this._onEvent, h.bind(this));
 	},
 	connect: function() {
+		/*for(var i=0; i < this._preConnect.length; i++) {
+			this._preConnect[i]();
+		}*/
+		var that = this;
+		poem.log(['Connection', this.login, this.passwd]);
 		this.connection.connect(this.login, this.passwd, 
 			function(status, error) {
 				poem.log('Strophe is ' + poem.Tchat.status(status) + ((error != null) ? '(' + error + ')' : ''));
-				for(var i=0; i < this.tchat._onConnect.length; i++) {
-					this.tchat._onConnect[i](status);
+				poem.log(['onConnect', that._onConnect.length, that._onConnect]);
+				for(var j=0; j < that._onConnect.length; j++) {
+					poem.log([j, status, that._onConnect[j]]);
+					var stat = that._onConnect[j](status);
+					poem.log(['connect status', stat]);
 				}
 				return true;
 			}
@@ -243,7 +270,6 @@ poem.Tchat.prototype = {
 		poem.log('Room: ' + room);
 		if(this._room[room] == null) {
 			this._room[room] = new poem.Room(this.connection, room, this.nickname);
-			this._room[room].presence();
 		}
 		return this._room[room];
 	},
@@ -272,18 +298,19 @@ poem.Tchat.prototype = {
 		//[FIXME] GROS BUG
 		//msg.up();
 		//msg.c('priority', {}).t(5);
+		poem.log(['connection presence']);
 		this.connection.send($pres({})
-			.c('status', {}).t('available')
+			//.c('status', {}).t('available')
 //			.up()
 //			.c('priority', {}).t(5)
 		.tree());
-		var that = this;
+		var thaat = this;
 		$(window).unload(function(evt) {
-			that.connection.send(
+			thaat.connection.send(
 				$pres({ type: "unavailable"})
 				.c('status').t('logged out')
 				.tree());
-			that.connection.flush();
+			thaat.connection.flush();
 			return true;
 		});
 	},
@@ -343,10 +370,12 @@ poem.Room = function(connection, room, pseudo) {
 	this.connection = connection;
 	this.room = room;
 	this.pseudo = pseudo;
+	this.autopresence = true;
 	this.buddies = {};
 	this._presence = [];
 	this._available = [];
 	this._notAvailable = [];
+	this._message = [];
 	this.handlePresence(function(pres){
 		poem.log(["presence", pres.type, pres.from]);
 		var i;
@@ -382,10 +411,11 @@ poem.Room.prototype = {
 		});
 		this.connection.send(
 			$pres({to: this.room + '/' + this.pseudo})
-			.c('x', {xmlns:"http://jabber.org/protocol/muc"})
-			.up()
-			.c('status').t('available')
+//			.c('x', {xmlns:"http://jabber.org/protocol/muc"})
+//			.up()
+//			.c('status').t('available')
 			.tree());
+		poem.log(this.room + ' is here');
 	},
 	/** send message to that room */
 	message: function(blabla) {
@@ -419,5 +449,31 @@ poem.Room.prototype = {
 	},
 	handleNotAvailable: function(handler) {
 		this._notAvailable = poem.append(this._notAvailable, handler.bind(this));
+	},
+	handleMessage: function(handler) {
+		this._message = poem.append(this._message, handler.bind(this));
+	},
+	triggerMessage: function(message) {
+		for(var i=0; i < this._message.length; i++) {
+			this._message[i](message);
+		}
 	}
 };
+
+poem.Behaviors = function(){
+	this.behaviors = [];
+};
+poem.Behaviors.prototype = {
+	append: function(behavior) {
+		this.behaviors[this.behaviors.length] = behavior;
+	},
+	trigger: function() {
+		for(var i=0; i<this.behaviors.length; i++) {
+			this.behaviors[i]();
+		}
+	}
+};
+/**
+ * all behaviors will be triggered, juste before connection
+ */
+poem.behaviors = new poem.Behaviors();

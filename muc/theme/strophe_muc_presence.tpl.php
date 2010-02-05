@@ -1,0 +1,1 @@
+<ul id="xmpp_presence"></ul>

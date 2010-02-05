@@ -1,8 +1,6 @@
 <h3><?php echo $chatroom->room; ?></h3>
 <div id="info"></div>
 
-<ul id="xmpp_presence"></ul>
-
 <div id="tchat"></div>
 
 <form id="xmpp_form">
