@@ -1,6 +1,0 @@
-name = XMPP roster
-description = XMPP (Jabber) roster
-core = 6.x
-package = XMPP
-dependencies[] = strophe
-version = 0.1
