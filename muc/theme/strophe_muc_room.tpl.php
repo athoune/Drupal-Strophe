@@ -3,10 +3,9 @@
 
 <div id="tchat"></div>
 
-<form id="xmpp_form">
-<input type="text" name="tchat" id="msg"/>
-<!--<input type="button" value="Tchat" id="doTchat"/>-->
-<input type="submit" value="Tchat" id="doGroup"/>
+<form id="muc-form">
+<input type="text" name="tchat" id="muc-msg"/>
+<input type="submit" value="Tchat" id="muc-doGroup"/>
 </form>
 
 <a href="#" id="event">event</a>

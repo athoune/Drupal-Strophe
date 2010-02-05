@@ -421,8 +421,9 @@ poem.Room.prototype = {
 	message: function(blabla) {
 		var msg = $msg({
 				to: this.room,
-				type: 'groupchat'});
-		msg.c('body',{}).t(blabla);
+				type: 'groupchat'})
+			.c('body',{}).t(blabla);
+		//	poem.log(msg);*/
 		this.connection.send(msg.tree());
 	},
 	/** send an arbitrary event to that room */

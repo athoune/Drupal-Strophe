@@ -20,17 +20,10 @@ poem.behaviors.append(function(){
     });
     
     var tchat = $('#tchat');
-    $('#doTchat').click(function() {
-        xmpp.chat(
-            $('#cible').get(0).value,
-            $('#msg').get(0).value
-        );
-        $('#msg').get(0).value = "";
-        return false;
-    });
-    $('#xmpp_form').submit(function() {
-        room.message($('#msg').val());
-        $('#msg').val("");
+poem.log(['muc-form',$('#muc-form')]);
+    $('#muc-form').submit(function() {
+        muc_room.message($('#muc-msg').val());
+        $('#muc-msg').val("");
         return false;
     });
     $('#event').click(function(){
