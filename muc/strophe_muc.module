@@ -60,8 +60,11 @@ function strophe_muc_block($op = 'list', $delta = 0, $edit = array()) {
       static $only_once = True;
       if($only_once) {//settings are doubled if you use a room and a presence in a same page
         drupal_add_js(array(
-          'strophe' => array('room' => $room->room)
-          ), 'setting'); //[FIXME] handle multiple chat room
+          'strophe' => array(
+            'room' => $room->room,
+            'direct_talk_url' => base_path() . 'discussion-with/',
+            'me' => $user->name
+          )), 'setting'); //[FIXME] handle multiple chat room
         $only_once = False;
       }
       drupal_add_js(drupal_get_path('module', 'strophe') . '/muc/muc.js');

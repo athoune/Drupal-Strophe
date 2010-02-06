@@ -1,6 +1,7 @@
 poem.behaviors.append(function(){
     var directTalk = function(who) {
-        console.log('id', who);
+        poem.log('id', Drupal.settings.strophe.direct_talk_url + who);
+        document.location.href = Drupal.settings.strophe.direct_talk_url + who;
     };
     var presence = $('#xmpp_presence');
     muc_room.handleAvailable(function(pres){
@@ -8,15 +9,12 @@ poem.behaviors.append(function(){
         if(presence.data('users')[u] == null) {
             presence.data('users')[u] = true;
             var li = $('<li>').attr('id', 'user-' + u);
-            if(Drupal.settings.strophe.click_to_talk) {
+            if(Drupal.settings.strophe.click_to_talk && Drupal.settings.strophe.me != u) {
                 li.append($('<a>')
                     .attr('href', '#')
                     .text(u)
                     .click(function(){
-                        var id = $(
-                            $(this).parent().get(0)
-                        ).attr('id').substr(5);
-                        directTalk(id);
+                        directTalk(u);
                         return false;
                     })
                );
