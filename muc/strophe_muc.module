@@ -13,11 +13,11 @@ function strophe_muc_block($op = 'list', $delta = 0, $edit = array()) {
     case 'list':
       $blocks[0] = array(
         'info' => t('Multi User Chat room'),
-        'cache' => BLOCK_CACHE,
+        'cache' => BLOCK_NO_CACHE,
       );
       $blocks[1] = array(
         'info' => t('Connected chatters'),
-        'cache' => BLOCK_CACHE,
+        'cache' => BLOCK_NO_CACHE,
       );
       return $blocks;
     case 'configure':
@@ -57,9 +57,13 @@ function strophe_muc_block($op = 'list', $delta = 0, $edit = array()) {
       $room = new strophe_room();
       $room->lines = variable_get('strophe_block_num_lines' , 5);
       $room->room = variable_get('strophe_block_room', 'conference') . '@conference.'. variable_get('strophe_domain', 'jabber.org');
-      drupal_add_js(array(
-        'strophe' => array('room' => $room->room)
-        ), 'setting'); //[FIXME] handle multiple chat room
+      static $only_once = True;
+      if($only_once) {//settings are doubled if you use a room and a presence in a same page
+        drupal_add_js(array(
+          'strophe' => array('room' => $room->room)
+          ), 'setting'); //[FIXME] handle multiple chat room
+        $only_once = False;
+      }
       drupal_add_js(drupal_get_path('module', 'strophe') . '/muc/muc.js');
       switch($delta) {
         case 0:
@@ -68,6 +72,10 @@ function strophe_muc_block($op = 'list', $delta = 0, $edit = array()) {
           $block['content'] = theme('strophe_muc_room', $room, $delta);
           return $block;
         case 1:
+          $ltt = variable_get('strophe_link_to_talk', array('talk' => 0));
+          drupal_add_js(array(
+            'strophe' =>array('click_to_talk' => ($ltt['talk'] !== 0))
+            ), 'setting');
           drupal_add_js(drupal_get_path('module', 'strophe') . '/muc/muc_presence.js');
           $block['subject'] = t('Presence list');
           $block['content'] = theme('strophe_muc_presence', $room);
