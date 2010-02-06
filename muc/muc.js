@@ -1,6 +1,6 @@
 var muc_room;
 Drupal.behaviors.muc = function(context){
-    muc_room = xmpp.room(typeof Drupal.settings.strophe.room == 'string' ? Drupal.settings.strophe.room : Drupal.settings.strophe.room[0]);
+    muc_room = xmpp.room(Drupal.settings.strophe.room);
     xmpp.handleEvent(function(event) {
         poem.log(event.textContent);
     });
