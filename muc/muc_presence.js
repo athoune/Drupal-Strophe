@@ -7,19 +7,23 @@ poem.behaviors.append(function(){
         var u = pres.jid.place;
         if(presence.data('users')[u] == null) {
             presence.data('users')[u] = true;
-            presence.append(
-                $('<li>').attr('id', 'user-' + u)
-                .append($('<a>')
-                .attr('href', '#')
-                .text(u)
-                .click(function(){
-                    var id = $(
-                        $(this).parent().get(0)
-                    ).attr('id').substr(5);
-                    directTalk(id);
-                    return false;
-                })
-            ));
+            var li = $('<li>').attr('id', 'user-' + u);
+            if(Drupal.settings.strophe.click_to_talk) {
+                li.append($('<a>')
+                    .attr('href', '#')
+                    .text(u)
+                    .click(function(){
+                        var id = $(
+                            $(this).parent().get(0)
+                        ).attr('id').substr(5);
+                        directTalk(id);
+                        return false;
+                    })
+               );
+            } else {
+               li.text(u);
+            }
+            presence.append(li);
         }
     });
     muc_room.handleNotAvailable(function(pres){
