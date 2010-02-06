@@ -13,15 +13,16 @@ function strophe_muc_block($op = 'list', $delta = 0, $edit = array()) {
     case 'list':
       $blocks[0] = array(
         'info' => t('Multi User Chat room'),
-        'cache' => BLOCK_NO_CACHE,
+        'cache' => BLOCK_CACHE,
       );
       $blocks[1] = array(
         'info' => t('Connected chatters'),
-        'cache' => BLOCK_NO_CACHE,
+        'cache' => BLOCK_CACHE,
       );
       return $blocks;
     case 'configure':
-      if ($delta == 0) {
+      switch($delta) {
+        case 0:
           $form['strophe_block_num_lines'] = array(
             '#type' => 'textfield',
             '#title' => t('Number of chat line to display'),
@@ -30,12 +31,23 @@ function strophe_muc_block($op = 'list', $delta = 0, $edit = array()) {
           $form['strophe_block_room'] = array(
             '#type' => 'textfield',
             '#title' => t('Room name'),
-            '#default_value' => variable_get('strophe_block_room_' .$delta, 'conference'),
+            '#default_value' => variable_get('strophe_block_room', 'conference'),
             );
+        break;
+        case 1:
+          $form['strophe_link_to_talk'] = array(
+            '#type' => 'checkboxes',
+            '#title' => t('Direct talk'),
+            '#default_value' => variable_get('strophe_link_to_talk', array('talk' => 0)),
+            '#description' => t('Allow a click to a chatter name to init a talk.'),
+            '#options' => array('talk' => t('Direct talk'))
+            );
+        break;
       }
       return $form;
     case 'save':
-      variable_set('strophe_block_num_lines_' .$delta, (int)$edit['strophe_block_num_lines']);
+      variable_set('strophe_block_num_lines', (int)$edit['strophe_block_num_lines']);
+      variable_set('strophe_link_to_talk', $edit['strophe_link_to_talk']);
       break;
     case 'view':
       global $user;
@@ -43,8 +55,8 @@ function strophe_muc_block($op = 'list', $delta = 0, $edit = array()) {
         return;
       }
       $room = new strophe_room();
-      $room->lines = variable_get('strophe_block_num_lines_0' , 5);
-      $room->room = variable_get('strophe_block_room_0', 'conference') . '@conference.'. variable_get('strophe_domain', 'jabber.org');
+      $room->lines = variable_get('strophe_block_num_lines' , 5);
+      $room->room = variable_get('strophe_block_room', 'conference') . '@conference.'. variable_get('strophe_domain', 'jabber.org');
       drupal_add_js(array(
         'strophe' => array('room' => $room->room)
         ), 'setting'); //[FIXME] handle multiple chat room
