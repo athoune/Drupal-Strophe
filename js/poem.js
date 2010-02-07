@@ -92,7 +92,6 @@ poem.Tchat = function(service, login, passwd, nickname) {
 	this._onAnyChat = [];
 	this._onServerMessage = [];
 	this._onHeadline= [];
-	this._onEvent = [];
 	this._onIQ = [];
 	this._preConnect = [];
 
@@ -193,16 +192,10 @@ poem.Tchat.prototype = {
 		if(type == 'headline') {
 			var childs = msg.childNodes;
 			for(i=0; i < childs.length; i++){
-				//[FIXME] put in an handleHeadline
 				var child = childs[i];
-				if(child.localName == 'event') {
-					for(i=0; i < this._onEvent.length; i++) {
-						this._onEvent[i](child);
-					}
+				for(i=0; i < this._onHeadline[child.localName].length; i++) {
+					this._onHeadline[child.localName][i](m, child);
 				}
-			}
-			for(i=0; i < this._onHeadline.length; i++) {
-				this._onHeadline[i](msg);
 			}
 		}
 		if(body != null) {
@@ -254,11 +247,14 @@ poem.Tchat.prototype = {
 	handleServerMessage: function(h) {
 		this._onServerMessage = poem.append(this._onServerMessage, h.bind(this));
 	},
-	handleHeadline: function(h) {
-		this._onHeadline = poem.append(this._onHeadline, h.bind(this));
+	handleHeadline: function(node, handler) {
+		if(this._onHeadline[node] == null) {
+			this._onHeadline[node] = [];
+		}
+		this._onHeadline[node] = poem.append(this._onHeadline[node], handler.bind(this));
 	},
-	handleEvent: function(h) {
-		this._onEvent = poem.append(this._onEvent, h.bind(this));
+	handleNSHeadline: function(namespace, node, handler) {
+		//[TODO]
 	},
 	handleNSIQ: function(namespace, node, handler) {
 		//[TODO]
@@ -315,6 +311,9 @@ poem.Tchat.prototype = {
 		//poem.log(this.connection);
 		this.connection.send(msg.tree());
 	},
+	/**
+	 * @deprecated
+	 */
 	event: function(to, blabla) {
 		this.connection.send(
 			$msg({type:'headline', to:to})
@@ -345,6 +344,9 @@ poem.Tchat.prototype = {
 			return true;
 		});
 	},
+	/**
+	 * @deprecated
+	 */
 	roster: function() {
 		this.connection.sendIQ(
 			$iq({type: 'get'}).c('query', {xmlns:Strophe.NS.ROSTER}).tree(),
@@ -460,7 +462,10 @@ poem.Room.prototype = {
 		//	poem.log(msg);*/
 		this.connection.send(msg.tree());
 	},
-	/** send an arbitrary event to that room */
+	/**
+	 * send an arbitrary event to that room 
+	 * @deprecated
+	 */
 	event: function(blabla) {
 		this.connection.send($msg({
 				type:'headline',
@@ -499,6 +504,9 @@ poem.Behaviors = function(){
 	this.behaviors = [];
 };
 poem.Behaviors.prototype = {
+	/**
+	 * Append a new behaviors to the poem stack
+	 */
 	append: function(behavior) {
 		this.behaviors[this.behaviors.length] = behavior;
 	},

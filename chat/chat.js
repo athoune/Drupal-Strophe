@@ -1,10 +1,7 @@
 
 poem.behaviors.append(function(){
 	var other = Drupal.settings.strophe.chat.other;
-	xmpp.handleEvent(function(event){
-		poem.log(event.textContent);
-	});
-	xmpp.handleEvent(function(event){
+	xmpp.handleHeadline('event', function(message, event){
 		poem.log(event.textContent);
 		$('#discussion').css('background-color', event.textContent);
 	});

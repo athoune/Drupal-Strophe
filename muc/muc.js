@@ -1,7 +1,7 @@
 var muc_room;
 Drupal.behaviors.muc = function(context){
     muc_room = xmpp.room(Drupal.settings.strophe.room);
-    xmpp.handleEvent(function(event) {
+    xmpp.handleHeadline('event', function(message, event) {
         poem.log(event.textContent);
     });
     xmpp.handleServerMessage(function(msg) {
