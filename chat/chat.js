@@ -27,7 +27,7 @@ poem.behaviors.append(function(){
 	});
 	xmpp.handleConnect(function(status){
 		if(Strophe.Status.CONNECTED == status){
-			//this.presence(other);
+			this.presence(other);
 		}
 	});
 
