@@ -3,25 +3,28 @@
  * Implementation of hook_init().
  */
 function strophe_init() {
-  global $user;
-  include_once drupal_get_path('module', 'ejabberd_auth') . '/drupalAuth.inc';
-  include_once drupal_get_path('module', 'strophe') . '/strophe.inc';
-  drupal_add_js(array(
-    'xmpp' => array(
-      'bosh_service' => variable_get('strophe_bosh_url', '/http-bind'),
-      'jid' => strophe_jid($user),
-      'passwd' => ejabberd_auth_hash($user->name),
-      'nickname' => $user->name
+  static $only_once = True;
+  if($only_once) {
+    $only_once = False;
+    global $user;
+    include_once drupal_get_path('module', 'ejabberd_auth') . '/drupalAuth.inc';
+    include_once drupal_get_path('module', 'strophe') . '/strophe.inc';
+    drupal_add_js(array(
+      'xmpp' => array(
+        'bosh_service' => variable_get('strophe_bosh_url', '/http-bind'),
+        'jid' => strophe_jid($user),
+        'passwd' => ejabberd_auth_hash($user->name),
+        'nickname' => $user->name
+        )
       )
-    )
-  , 'setting');
-  //chat
-  $js = array('b64', 'md5', 'sha1', 'strophe', 'poem', 'drupal', 'init');
-  foreach($js as $j){
-    drupal_add_js(drupal_get_path('module', 'strophe') ."/js/$j.js");
+    , 'setting');
+    //chat
+    $js = array('b64', 'md5', 'sha1', 'strophe', 'poem', 'drupal', 'init');
+    foreach($js as $j){
+      drupal_add_js(drupal_get_path('module', 'strophe') ."/js/$j.js");
+    }
+    drupal_add_js(drupal_get_path('module', 'strophe') ."/js/connect.js", 'theme', 'footer');
   }
-  
-  drupal_add_js(drupal_get_path('module', 'strophe') ."/js/connect.js", 'theme', 'footer');
 }
 
 function strophe_menu() {

@@ -15,6 +15,7 @@ function strophe_chat_menu() {
 }
 
 function strophe_chat_init() {
+  strophe_init();
   drupal_add_js(drupal_get_path('module', 'strophe') . '/chat/chat_init.js');
 }
 

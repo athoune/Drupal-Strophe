@@ -11,10 +11,10 @@ var poem = {
 		}
 	},
 	rawInput: function(data) {
-		//poem.log('RECV: ' + data);
+		poem.log('RECV: ' + data);
 	},
 	rawOutput: function(data) {
-		//poem.log('SENT: ' + data);
+		poem.log('SENT: ' + data);
 	},
 	/**
 	 * append helper for Array class
@@ -175,6 +175,7 @@ poem.Tchat.prototype = {
 		if(type == 'headline') {
 			var childs = msg.childNodes;
 			for(i=0; i < childs.length; i++){
+				//[FIXME] put in an handleHeadline
 				var child = childs[i];
 				if(child.localName == 'event') {
 					for(i=0; i < this._onEvent.length; i++) {
@@ -283,7 +284,7 @@ poem.Tchat.prototype = {
 				to: to,
 				type: 'chat'});
 		msg.c('body',{}).t(blabla);
-		//poem.log(msg);
+		poem.log(msg);
 		//poem.log(this.connection);
 		this.connection.send(msg.tree());
 	},
