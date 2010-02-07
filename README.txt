@@ -112,6 +112,9 @@ Strophe module is not a gtalk clone, it's a framework with usable features. You 
 
 The Strophe Javascript framework was build to handle chess party.
 
+Psi is ugly xmpp client, but its XML console is priceless.
+http://psi-im.org/
+
 -- LATER --
  * No fancy pubsub stuuf is used, for now.
  * Chat as a popup, everywhere.
