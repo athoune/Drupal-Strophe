@@ -18,8 +18,8 @@ function strophe_init() {
         )
       )
     , 'setting');
-    //chat
-    $js = array('b64', 'md5', 'sha1', 'strophe', 'poem', 'drupal', 'init');
+    //chat 'b64', 'md5', 'sha1', 'drupal'
+    $js = array( 'strophe', 'poem', 'init');
     foreach($js as $j){
       drupal_add_js(drupal_get_path('module', 'strophe') ."/js/$j.js");
     }
