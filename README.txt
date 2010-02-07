@@ -13,7 +13,7 @@ Developpement is done with Ejabberd and its modules
 
 With the Drupal's module ejabberd_auth, drupal can provides users to ejabberd.
 
--- USAGE --
+-- CONFIGURATION --
 
 You have to choose a domain for your xmpp server, it may be a real domain, if you wont to use classical xmpp client, or a fake one if you only wont to use it inside Drupal.
 
@@ -98,6 +98,23 @@ In your theme, you should have something like :
 }
 
 ------------------------------------------------------>8
+
+-- USAGE --
+Strophe use sub modules: muc and chat. Muc is for Multi User Chatroom, and chat is a one to one discussion. With Ejabberd external auth, you don't have any user, so, every rosters are empty. For handling user presence, a simple chatroom is used, every user join this room, and you can display it or just use it for connection status.
+
+The MUC module provides two blocks, one for the presence list, the other for the chatroom.
+If you wont, presence list can be used as a starting point for a private discussion.
+
+The Chat module provide one page, for a one to one discussion. The easiest way is to use presence list to trigger a discussion.
+
+-- FRAMEWORK --
+Strophe module is not a gtalk clone, it's a framework with usable features. You can use the power of xmpp and javascript with it. Event or query can be send throw XMPP. I click somewhere on my browser, something will happening on my correspondent's browser. I can ask query, and handling answer too.
+
+The Strophe Javascript framework was build to handle chess party.
+
+-- LATER --
+ * No fancy pubsub stuuf is used, for now.
+ * Chat as a popup, everywhere.
 
 -- CONTACT --
 Mathieu - http://drupal.org/user/378820
