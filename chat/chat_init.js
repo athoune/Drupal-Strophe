@@ -29,15 +29,13 @@ poem.Tchat.prototype.handleWannaTalk = function(handler) {
 	}.bind(this));
 	//[FIXME] le bind n'est pas bon
 	*/
-	this.handleIQ('wannatalk', function(iq) {
+	this.handleIQ('wannatalk', function(iq, wannatalk) {
 		poem.log(['wanna iq', iq, this]);
-		var id = iq.getAttribute('id');
-		var from = iq.getAttribute('from');
-		var wannatalk = iq.getElementsByTagName('wannatalk')[0];
 		var type = wannatalk.getAttribute('type');
+		var from = iq.getAttribute('from');
 		if(type == "question") {
 			var answer = handler(from, wannatalk);
-			this.connection.send($iq({id:id, type:'result', to:from})
+			this.connection.send($iqr(iq)
 				.c('wannatalk', {type:"answer"})
 				.t(answer[0] ? '1':'0')
 				.tree());

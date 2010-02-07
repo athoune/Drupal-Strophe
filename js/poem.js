@@ -125,6 +125,14 @@ poem.Tchat = function(service, login, passwd, nickname) {
 	});
 };
 
+/**
+ * Build an iq result from an iq answer
+ * @argument iq iq xml stanza
+ */
+function $iqr(iq) {
+	return $iq({id : iq.getAttribute('id'), to: iq.getAttribute('from'), type: 'result'});
+}
+
 poem.Tchat.prototype = {
 	__iq: function(iq) {
 		poem.log(['iq', iq]);
@@ -133,7 +141,7 @@ poem.Tchat.prototype = {
 			var handlers = this._onIQ[children[i].nodeName];
 			if(handlers != null) {
 				for(var j=0; j < handlers.length; j++) {
-					handlers[j](iq);
+					handlers[j](iq, children[i]);
 				}
 			}
 		}
