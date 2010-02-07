@@ -10,7 +10,7 @@ poem.behaviors.append(function(){
 	});
 	xmpp.handleServerMessage(function(msg){
 		poem.log(msg);
-		alert(msg.body.textContent)
+		alert(msg.body.textContent);
 	});
 	function post(who, what) {
 		$('#discussion').append(
@@ -24,6 +24,11 @@ poem.behaviors.append(function(){
 		poem.log('je recois un message');
 		poem.log(msg);
 		post((msg.nick != null) ? msg.nick : msg.from.split('@')[0], msg.body);
+	});
+	xmpp.handleConnect(function(status){
+		if(Strophe.Status.CONNECTED == status){
+			//this.presence(other);
+		}
 	});
 
 	$('#discussion-form').submit(function(){
