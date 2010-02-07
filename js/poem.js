@@ -128,8 +128,14 @@ poem.Tchat = function(service, login, passwd, nickname) {
 poem.Tchat.prototype = {
 	__iq: function(iq) {
 		poem.log(['iq', iq]);
-		for(var i=0; i < this._onIQ.length; i++) {
-			this._onIQ[i](iq);
+		var children = iq.childNodes;
+		for(var i=0; i < children.length; i++) {
+			var handlers = this._onIQ[children[i].nodeName];
+			if(handlers != null) {
+				for(var j=0; j < handlers.length; j++) {
+					handlers[j](iq);
+				}
+			}
 		}
 		return true;
 	},
@@ -246,8 +252,14 @@ poem.Tchat.prototype = {
 	handleEvent: function(h) {
 		this._onEvent = poem.append(this._onEvent, h.bind(this));
 	},
-	handleIQ: function(h) {
-		this._onIQ = poem.append(this._onIQ, h.bind(this));
+	handleNSIQ: function(namespace, node, handler) {
+		//[TODO]
+	},
+	handleIQ: function(node, handler) {
+		if(this._onIQ[node] == null) {
+			this._onIQ[node] = [];
+		}
+		this._onIQ[node] = poem.append(this._onIQ[node], handler.bind(this));
 	},
 	connect: function() {
 		/*for(var i=0; i < this._preConnect.length; i++) {
