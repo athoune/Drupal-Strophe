@@ -1,20 +1,5 @@
-/**
- * Invite someone to talk
- */
-poem.Tchat.prototype.wannaTalk = function(to) {
-	this.connection.send(
-		$msg({type:'headline', to:to})
-			.c('wannatalk',{})
-			.tree()
-	);	
-};
-poem.Tchat.prototype.handleWannaTalk = function(handler) {
-	this.handleHeadline(function(head){
-		poem.log(head.getElementsByTagName('wannatalk').length);
-	});
-};
 
-$(function(){
+poem.behaviors.append(function(){
 	var other = Drupal.settings.strophe.chat.other;
 	xmpp.handleEvent(function(event){
 		poem.log(event.textContent);

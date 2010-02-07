@@ -14,6 +14,10 @@ function strophe_chat_menu() {
   return $items;
 }
 
+function strophe_chat_init() {
+  drupal_add_js(drupal_get_path('module', 'strophe') . '/chat/chat_init.js');
+}
+
 function strophe_chat_page($name) {
   $other = user_load(array('name' => $name));
   include_once drupal_get_path('module', 'strophe') .'/strophe.inc';
