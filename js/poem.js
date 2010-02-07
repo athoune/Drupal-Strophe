@@ -295,20 +295,23 @@ poem.Tchat.prototype = {
 				.t(blabla).tree()
 		);
 	},
-	presence: function() {
+	presence: function(to) {
 		//[FIXME] GROS BUG
 		//msg.up();
 		//msg.c('priority', {}).t(5);
-		poem.log(['connection presence']);
-		this.connection.send($pres({})
-			//.c('status', {}).t('available')
-//			.up()
-//			.c('priority', {}).t(5)
-		.tree());
+		poem.log(['connection presence', to]);
+		var pres;
+		if(typeof to == 'undefined'){
+			pres = {};
+		} else {
+			pres = {from:this.jid.toString, to:to};
+		}
+		this.connection.send($pres(pres).tree());
 		var thaat = this;
+		pres.type = "unavailable";
 		$(window).unload(function(evt) {
 			thaat.connection.send(
-				$pres({ type: "unavailable"})
+				$pres(pres)
 				.c('status').t('logged out')
 				.tree());
 			thaat.connection.flush();
@@ -344,6 +347,9 @@ poem.Tchat.prototype = {
 			},
 			10000
 		);
+	},
+	flush: function() {
+		this.connection.flush();
 	}
 };
 
