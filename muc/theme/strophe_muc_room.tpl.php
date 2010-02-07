@@ -8,4 +8,4 @@
 <input type="submit" value="Tchat" id="muc-doGroup"/>
 </form>
 
-<a href="#" id="event">event</a>
+<!--<a href="#" id="event">event</a>-->
