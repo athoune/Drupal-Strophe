@@ -93,6 +93,7 @@ poem.Tchat = function(service, login, passwd, nickname) {
 	this._onServerMessage = [];
 	this._onHeadline= [];
 	this._onEvent = [];
+	this._onIQ = [];
 	this._preConnect = [];
 
 	this.handlePresence(function(pres) {
@@ -127,6 +128,9 @@ poem.Tchat = function(service, login, passwd, nickname) {
 poem.Tchat.prototype = {
 	__iq: function(iq) {
 		poem.log(['iq', iq]);
+		for(var i=0; i < this._onIQ.length; i++) {
+			this._onIQ[i](iq);
+		}
 		return true;
 	},
 	__presence: function(pres) {
@@ -242,6 +246,9 @@ poem.Tchat.prototype = {
 	handleEvent: function(h) {
 		this._onEvent = poem.append(this._onEvent, h.bind(this));
 	},
+	handleIQ: function(h) {
+		this._onIQ = poem.append(this._onIQ, h.bind(this));
+	},
 	connect: function() {
 		/*for(var i=0; i < this._preConnect.length; i++) {
 			this._preConnect[i]();
@@ -304,7 +311,7 @@ poem.Tchat.prototype = {
 		if(typeof to == 'undefined'){
 			pres = {};
 		} else {
-			pres = {from:this.jid.toString, to:to};
+			pres = {to:to};//from:this.jid.toString,
 		}
 		this.connection.send($pres(pres).tree());
 		var thaat = this;
