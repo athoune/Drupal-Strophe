@@ -15,9 +15,15 @@ function strophe_chat_menu() {
 }
 
 function strophe_chat_page($name) {
-  $other = user_load(array('name' =>$name));
+  $other = user_load(array('name' => $name));
   include_once drupal_get_path('module', 'strophe') .'/strophe.inc';
-  return theme('chat_room', new strophe_user($other));
+  drupal_add_js(drupal_get_path('module', 'strophe') . '/chat/chat.js');
+  $xmpp_other = new strophe_user($other);
+  drupal_add_js(array(
+    'strophe' => array(
+      'chat' => array('other' => $xmpp_other->jid))),
+    'setting');
+  return theme('chat_room', $other);
 }
 
 /**
