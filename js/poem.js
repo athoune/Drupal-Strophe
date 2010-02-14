@@ -300,7 +300,7 @@ poem.Tchat.prototype = {
 	room: function(room) {
 		poem.log('Room: ' + room);
 		if(this._room[room] == null) {
-			this._room[room] = new poem.Room(this.connection, room, this.nickname);
+			this._room[room] = new poem.Room(this, room, this.nickname);
 		}
 		return this._room[room];
 	},
@@ -328,10 +328,10 @@ poem.Tchat.prototype = {
 				.t(blabla).tree()
 		);
 	},
+	/**
+	 * Send presence
+	 */
 	presence: function(to) {
-		//[FIXME] GROS BUG
-		//msg.up();
-		//msg.c('priority', {}).t(5);
 		poem.log(['connection presence', to]);
 		var pres = (typeof to == 'undefined') ? {} : {to:to};//from:this.jid.toString,
 		var status = this.status();
@@ -370,6 +370,7 @@ poem.Tchat.prototype = {
 		}
 	},
 	/**
+	 * Show or set show
 	 * available states are poem.AWAY, poem.CHAT, poem.DND, poem.XA
 	 */
 	show: function(state) {
@@ -437,8 +438,9 @@ poem.Tchat.status = function(status) {
  * @class A chat room
  * @constructor
  */
-poem.Room = function(connection, room, pseudo) {
-	this.connection = connection;
+poem.Room = function(tchat, room, pseudo) {
+	this.tchat = tchat;
+	this.connection = tchat.connection;
 	this.room = room;
 	this.pseudo = pseudo;
 	this.autopresence = true;
@@ -480,12 +482,13 @@ poem.Room.prototype = {
 			that.connection.flush();
 			return true;
 		});
-		this.connection.send(
+		this.tchat.presence(this.room + '/' + this.pseudo);
+		/*this.connection.send(
 			$pres({to: this.room + '/' + this.pseudo})
 //			.c('x', {xmlns:"http://jabber.org/protocol/muc"})
 //			.up()
 //			.c('status').t('available')
-			.tree());
+			.tree());*/
 		poem.log(this.room + ' is here');
 	},
 	/** send message to that room */
