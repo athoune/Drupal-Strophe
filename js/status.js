@@ -3,7 +3,6 @@ poem.behaviors.append(function() {
 	var st = xmpp.show();
 	var cpt = 0;
 	$(status[0].options).each(function() {
-		poem.log(["beuha", this.value]);
 		if(st == this.value) {
 			status[0].selectedIndex = cpt;
 		}
