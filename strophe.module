@@ -19,7 +19,7 @@ function strophe_init() {
       )
     , 'setting');
     //chat 'b64', 'md5', 'sha1', 'drupal'
-    $js = array( 'strophe', 'poem', 'init');
+    $js = array('jquery.cookie', 'strophe', 'poem', 'init');
     foreach($js as $j){
       drupal_add_js(drupal_get_path('module', 'strophe') ."/js/$j.js");
     }
@@ -89,3 +89,40 @@ function strophe_admin_settings() {
   return system_settings_form($form);
 }
 
+function strophe_block($op = 'list', $delta = 0, $edit = array()) {
+  switch ($op) {
+    case 'list':
+      $blocks[0] = array(
+        'info' => t('XMPP status'),
+        'cache' => BLOCK_NO_CACHE,
+      );
+      return $blocks;
+    case 'configure':
+      switch($delta) {
+        case 0:
+        break;
+      }
+    break;
+    case 'save':
+    break;
+    case 'view':
+      switch($delta) {
+        case 0:
+          drupal_add_js(drupal_get_path('module', 'strophe') . '/js/status.js');
+          $block['subject'] = t('Status');
+          $block['content'] = theme('strophe_status');
+          return $block;
+      }
+    break;
+  };
+}
+
+function strophe_theme() {
+  $path = drupal_get_path('module', 'strophe');
+  return array(
+  'strophe_status' => array(
+    'path' => "$path/theme",
+    'template' => 'strophe_status',
+    'arguments' => array(),
+  ));
+}
