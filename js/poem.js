@@ -326,13 +326,14 @@ poem.Tchat.prototype = {
 		//msg.up();
 		//msg.c('priority', {}).t(5);
 		poem.log(['connection presence', to]);
-		var pres;
-		if(typeof to == 'undefined'){
-			pres = {};
-		} else {
-			pres = {to:to};//from:this.jid.toString,
+		var pres = (typeof to == 'undefined') ? {} : {to:to};//from:this.jid.toString,
+		var status = this.status();
+		poem.log(['status', status]);
+		var p = $pres(pres);
+		if(status != null) {
+			p.c('status', {}).t(status);
 		}
-		this.connection.send($pres(pres).tree());
+		this.connection.send(p.tree());
 		var thaat = this;
 		pres.type = "unavailable";
 		$(window).unload(function(evt) {
@@ -343,6 +344,14 @@ poem.Tchat.prototype = {
 			thaat.connection.flush();
 			return true;
 		});
+	},
+	status: function(msg) {
+		if(typeof msg == 'undefined') {
+			return $.cookie('strophe.satus');
+		} else {
+			$.cookie('strophe.satus', msg);
+			return true;
+		}
 	},
 	/**
 	 * @deprecated
