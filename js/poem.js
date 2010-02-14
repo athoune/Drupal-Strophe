@@ -23,7 +23,14 @@ var poem = {
 	append: function(haystack, needle) {
 		haystack[haystack.length] = needle;
 		return haystack;
-	}
+	},
+	/*
+	 * available states for show
+	 */
+	AWAY: 'away',
+	CHAT: 'chat',
+	DND: 'dnd', 
+	XA: 'xa'
 };
 
 /**
@@ -332,6 +339,13 @@ poem.Tchat.prototype = {
 		var p = $pres(pres);
 		if(status != null) {
 			p.c('status', {}).t(status);
+			p.up();
+		}
+		var show = this.show();
+		show = poem.CHAT;
+		if(show != null) {
+			p.c('show', {}).t(show);
+			p.up();
 		}
 		this.connection.send(p.tree());
 		var thaat = this;
@@ -345,12 +359,24 @@ poem.Tchat.prototype = {
 			return true;
 		});
 	},
+	/**
+	 * show or set status
+	 */
 	status: function(msg) {
 		if(typeof msg == 'undefined') {
 			return $.cookie('strophe.satus');
 		} else {
-			$.cookie('strophe.satus', msg);
-			return true;
+			return $.cookie('strophe.satus', msg);
+		}
+	},
+	/**
+	 * available states are poem.AWAY, poem.CHAT, poem.DND, poem.XA
+	 */
+	show: function(state) {
+		if(typeof state == 'undefined') {
+			return $.cookie('strophe.show');
+		} else {
+			return $.cookie('strophe.show', state);
 		}
 	},
 	/**
