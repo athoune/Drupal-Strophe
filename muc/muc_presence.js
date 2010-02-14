@@ -22,6 +22,9 @@ poem.behaviors.append(function(){
         if(presence.data('users')[u] == null) {
             presence.data('users')[u] = true;
             var li = $('<li>').attr('id', 'user-' + u);
+            if(pres.show != '') {
+              li.addClass(pres.show);
+            }
             if(Drupal.settings.strophe.click_to_talk && Drupal.settings.strophe.me != u) {
                 li.append($('<a>')
                     .attr('href', '#')
@@ -35,11 +38,15 @@ poem.behaviors.append(function(){
                li.text(u);
             }
             presence.append(li);
+        } else {
+            presence.find('#user-' +u).removeClass('away').removeClass('chat').addClass(pres.show);
         }
+        
     });
     muc_room.handleNotAvailable(function(pres){
         var u = pres.jid.place;
         if(presence.data('users')[u] != null) {
+            presence.data('users')[u] = null;
             presence.find('#user-' + u).remove();
         }
     });

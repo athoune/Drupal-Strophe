@@ -34,6 +34,22 @@ var poem = {
 };
 
 /**
+ * Helper for connection status
+ * return a name from a status
+ */
+poem.status = function(status) {
+	var dico = {};
+	dico[Strophe.Status.CONNECTING] = 'connecting';
+	dico[Strophe.Status.CONNFAIL] = 'connfail';
+	dico[Strophe.Status.AUTHENTICATING] = 'authenticating';
+	dico[Strophe.Status.AUTHFAIL] = 'authfail';
+	dico[Strophe.Status.DISCONNECTING] = 'disconnecting';
+	dico[Strophe.Status.DISCONNECTED] = 'disconnected';
+	dico[Strophe.Status.CONNECTED] = 'connected';
+	return dico[status];
+};
+
+/**
  * @class Jabber InDentification
  * @constructor
  */
@@ -81,6 +97,9 @@ poem.Tchat = function(service, login, passwd, nickname) {
 	this.login = login;
 	this.passwd = passwd;
 	this.nickname = nickname;
+	this._status = $.cookie('strophe.status');
+	this._show = $.cookie('strophe.show');
+	
 
 	this.connection = new Strophe.Connection(service);
 	this.connection.rawInput = poem.rawInput;
@@ -107,7 +126,7 @@ poem.Tchat = function(service, login, passwd, nickname) {
 		if(pres.jid.isRoom()) {
 			this._room[pres.jid.roomName()].triggerPresence(pres);
 		}
-		poem.log(['the rooms', pres.jid.isRoom(), pres.jid.roomName(), pres.jid, this._room, this._room[pres.jid.roomName()]]);
+		//poem.log(['the rooms', pres.jid.isRoom(), pres.jid.roomName(), pres.jid, this._room, this._room[pres.jid.roomName()]]);
 		this._presence[pres.from] = pres;
 	});
 	this.handleConnect(function(status) {
@@ -121,6 +140,10 @@ poem.Tchat = function(service, login, passwd, nickname) {
 					room.presence();
 				}
 			}
+		}
+		if(Strophe.Status.DISCONNECTED == status) {
+			poem.log('REconnection');
+			this.connect();
 		}
 		return true;
 	});
@@ -167,7 +190,7 @@ poem.Tchat.prototype = {
 			status: (status.length > 0) ? Strophe.getText(status[0]) : null,
 			show: (show.length > 0) ? Strophe.getText(show[0]) : null
 		};
-		poem.log(p);
+		poem.log(['p',p]);
 		for(var i=0; i < this._onPresence.length; i++) {
 			this._onPresence[i](p);
 		}
@@ -277,15 +300,11 @@ poem.Tchat.prototype = {
 			this._preConnect[i]();
 		}*/
 		var that = this;
-		poem.log(['Connection', this.login, this.passwd]);
 		this.connection.connect(this.login, this.passwd, 
 			function(status, error) {
-				poem.log('Strophe is ' + poem.Tchat.status(status) + ((error != null) ? '(' + error + ')' : ''));
-				poem.log(['onConnect', that._onConnect.length, that._onConnect]);
+				poem.log('Strophe is ' + poem.status(status) + ((error != null) ? '(' + error + ')' : ''));
 				for(var j=0; j < that._onConnect.length; j++) {
-					poem.log([j, status, that._onConnect[j]]);
 					var stat = that._onConnect[j](status);
-					poem.log(['connect status', stat]);
 				}
 				return true;
 			}
@@ -298,7 +317,6 @@ poem.Tchat.prototype = {
 	 * Get a room, build it if needed
 	 */
 	room: function(room) {
-		poem.log('Room: ' + room);
 		if(this._room[room] == null) {
 			this._room[room] = new poem.Room(this, room, this.nickname);
 		}
@@ -331,22 +349,27 @@ poem.Tchat.prototype = {
 	/**
 	 * Send presence
 	 */
-	presence: function(to) {
+	presence: function() {
+		this.onePresence();
+		for(var r in this._room){
+			this.onePresence(r + '/' + this.nickname);
+		}
+	},
+	onePresence: function(to) {
 		poem.log(['connection presence', to]);
 		var pres = (typeof to == 'undefined') ? {} : {to:to};//from:this.jid.toString,
-		var status = this.status();
-		poem.log(['status', status]);
 		var p = $pres(pres);
+		var status = this.status();
 		if(status != null) {
 			p.c('status', {}).t(status);
-			p.up();
+			//p.up();
 		}
 		var show = this.show();
-		show = poem.CHAT;
 		if(show != null) {
 			p.c('show', {}).t(show);
-			p.up();
+			//p.up();
 		}
+		poem.log(p.tree());
 		this.connection.send(p.tree());
 		var thaat = this;
 		pres.type = "unavailable";
@@ -364,8 +387,9 @@ poem.Tchat.prototype = {
 	 */
 	status: function(msg) {
 		if(typeof msg == 'undefined') {
-			return $.cookie('strophe.satus');
+			return this._status;
 		} else {
+			this._status = msg;
 			return $.cookie('strophe.satus', msg);
 		}
 	},
@@ -375,8 +399,9 @@ poem.Tchat.prototype = {
 	 */
 	show: function(state) {
 		if(typeof state == 'undefined') {
-			return $.cookie('strophe.show');
+			return this._show;
 		} else {
+			this._show = state;
 			return $.cookie('strophe.show', state);
 		}
 	},
@@ -419,22 +444,6 @@ poem.Tchat.prototype = {
 };
 
 /**
- * Helper for connection status
- * return a name from a status
- */
-poem.Tchat.status = function(status) {
-	var dico = {};
-	dico[Strophe.Status.CONNECTING] = 'connecting';
-	dico[Strophe.Status.CONNFAIL] = 'connfail';
-	dico[Strophe.Status.AUTHENTICATING] = 'authenticating';
-	dico[Strophe.Status.AUTHFAIL] = 'authfail';
-	dico[Strophe.Status.DISCONNECTING] = 'disconnecting';
-	dico[Strophe.Status.DISCONNECTED] = 'disconnected';
-	dico[Strophe.Status.CONNECTED] = 'connected';
-	return dico[status];
-};
-
-/**
  * @class A chat room
  * @constructor
  */
@@ -450,13 +459,14 @@ poem.Room = function(tchat, room, pseudo) {
 	this._notAvailable = [];
 	this._message = [];
 	this.handlePresence(function(pres){
-		poem.log(["presence", pres.type, pres.from]);
+		poem.log(["presence", pres.type, pres.from, pres.show]);
 		var i;
 		if(pres.type == 'available') {
 			for(i=0; i < this._available.length; i++) {
 				this._available[i](pres);
 			}
 		} else {
+			poem.log(['not available', pres.from]);
 			for(i=0; i < this._notAvailable.length; i++) {
 				this._notAvailable[i](pres);
 			}
@@ -482,7 +492,7 @@ poem.Room.prototype = {
 			that.connection.flush();
 			return true;
 		});
-		this.tchat.presence(this.room + '/' + this.pseudo);
+		this.tchat.presence();//this.room + '/' + this.pseudo);
 		/*this.connection.send(
 			$pres({to: this.room + '/' + this.pseudo})
 //			.c('x', {xmlns:"http://jabber.org/protocol/muc"})

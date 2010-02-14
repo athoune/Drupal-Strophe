@@ -11,5 +11,6 @@ poem.behaviors.append(function() {
 	status.change(function() {
 		xmpp.show(this.options[this.selectedIndex].value);
 		xmpp.presence();
+		xmpp.flush();
 	});
 });
