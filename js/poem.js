@@ -99,7 +99,9 @@ poem.Tchat = function(service, login, passwd, nickname) {
 	this.nickname = nickname;
 	this._status = $.cookie('strophe.status');
 	this._show = $.cookie('strophe.show');
-	
+	if(this._show == null) {
+		this._show = '';
+	}
 
 	this.connection = new Strophe.Connection(service);
 	this.connection.rawInput = poem.rawInput;
