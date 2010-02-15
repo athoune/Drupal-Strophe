@@ -23,7 +23,9 @@ function strophe_init() {
     foreach($js as $j){
       drupal_add_js(drupal_get_path('module', 'strophe') ."/js/$j.js");
     }
-    drupal_add_js(drupal_get_path('module', 'strophe') ."/js/connect.js", 'theme', 'footer');
+    if(0 != $user->uid) {
+      drupal_add_js(drupal_get_path('module', 'strophe') ."/js/connect.js", 'theme', 'footer');
+    }
   }
 }
 
@@ -106,6 +108,10 @@ function strophe_block($op = 'list', $delta = 0, $edit = array()) {
     case 'save':
     break;
     case 'view':
+      global $user;
+      if(0 == $user->uid) {
+        return;
+      }
       switch($delta) {
         case 0:
           drupal_add_js(drupal_get_path('module', 'strophe') . '/js/status.js');
