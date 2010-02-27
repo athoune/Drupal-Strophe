@@ -33,20 +33,23 @@ var poem = {
 	XA: 'xa'
 };
 
+poem._status = {
+};
+poem._status[Strophe.Status.CONNECTING] = 'connecting';
+poem._status[Strophe.Status.CONNFAIL] = 'connfail';
+poem._status[Strophe.Status.AUTHENTICATING] = 'authenticating';
+poem._status[Strophe.Status.AUTHFAIL] = 'authfail';
+poem._status[Strophe.Status.DISCONNECTING] = 'disconnecting';
+poem._status[Strophe.Status.DISCONNECTED] = 'disconnected';
+poem._status[Strophe.Status.CONNECTED] = 'connected';
+poem._status[Strophe.Status.ATTACHED] = 'attached';
+
 /**
  * Helper for connection status
  * return a name from a status
  */
 poem.status = function(status) {
-	var dico = {};
-	dico[Strophe.Status.CONNECTING] = 'connecting';
-	dico[Strophe.Status.CONNFAIL] = 'connfail';
-	dico[Strophe.Status.AUTHENTICATING] = 'authenticating';
-	dico[Strophe.Status.AUTHFAIL] = 'authfail';
-	dico[Strophe.Status.DISCONNECTING] = 'disconnecting';
-	dico[Strophe.Status.DISCONNECTED] = 'disconnected';
-	dico[Strophe.Status.CONNECTED] = 'connected';
-	return dico[status];
+	return poem._status[status];
 };
 
 /**
@@ -97,6 +100,7 @@ poem.Tchat = function(service, login, passwd, nickname) {
 	this.login = login;
 	this.passwd = passwd;
 	this.nickname = nickname;
+	this.tryingAttach = false;
 	this._status = $.cookie('strophe.status');
 	this._show = $.cookie('strophe.show');
 	if(this._show == null) {
@@ -132,7 +136,11 @@ poem.Tchat = function(service, login, passwd, nickname) {
 		this._presence[pres.from] = pres;
 	});
 	this.handleConnect(function(status) {
-		if(Strophe.Status.CONNECTED == status) {
+		if(Strophe.Status.ATTACHED == status) {
+			poem.log('Attached');
+		}
+		if(Strophe.Status.CONNECTED == status || Strophe.Status.ATTACHED == status) {
+			$.cookie('strophe.jsr', this.connection.jid + '::' + this.connection.sid + '::' + this.connection.rid);
 			this.presence();
 			//poem.log(['rooms', this._room]);
 			for(r in this._room) {
@@ -302,15 +310,22 @@ poem.Tchat.prototype = {
 			this._preConnect[i]();
 		}*/
 		var that = this;
-		this.connection.connect(this.login, this.passwd, 
-			function(status, error) {
-				poem.log('Strophe is ' + poem.status(status) + ((error != null) ? '(' + error + ')' : ''));
-				for(var j=0; j < that._onConnect.length; j++) {
-					var stat = that._onConnect[j](status);
-				}
-				return true;
+		var callback = function(status, error) {
+			poem.log(["status", status]);
+			poem.log('Strophe is ' + poem.status(status) + ((error != null) ? '(' + error + ')' : ''));
+			for(var j=0; j < that._onConnect.length; j++) {
+				var stat = that._onConnect[j](status);
 			}
-		);
+			return true;
+		};
+		var jsr = $.cookie('strophe.jsr');
+		if(jsr == null || this.tryingAttach) {
+			this.connection.connect(this.login, this.passwd, callback);
+		} else {
+			jsr = jsr.split('::');
+			this.tryingAttach = true;
+			this.connection.attach(jsr[0], jsr[1], parseInt(jsr[2], 10) +1, callback);
+		}
 	},
 	/*connect_status: function(status) {
 		poem.log("Status: " +status);
