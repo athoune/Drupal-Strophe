@@ -133,7 +133,8 @@ poem.XMPP = function(service, login, passwd, nickname) {
 			jid: new poem.Jid(from),
 			type: (type == null) ? 'available' : type,
 			status: (status.length > 0) ? Strophe.getText(status[0]) : null,
-			show: (show.length > 0) ? Strophe.getText(show[0]) : null
+			show: (show.length > 0) ? Strophe.getText(show[0]) : null,
+			raw: pres
 		};
 		poem.log(['p',p]);
 		for(var i=0; i < this._onPresence.length; i++) {
