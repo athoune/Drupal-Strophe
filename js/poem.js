@@ -396,33 +396,31 @@ poem.XMPP.prototype = {
 	 * Send presence
 	 */
 	presence: function() {
-		this._onePresence();
+		var that = this;
+		var _onePresence = function(to) {
+			poem.log(['connection presence', to]);
+			var pres = (typeof to == 'undefined') ? {} : {to:to};//from:this.jid.toString,
+			var p = $pres(pres);
+			for(var i=0; i < that._alterPresence.length; i++) {
+				p = that._alterPresence[i](p);
+			}
+			poem.log(p.tree());
+			that.connection.send(p.tree());
+			var thaat = that;
+			pres.type = "unavailable";
+			$(window).unload(function(evt) {
+				thaat.connection.send(
+					$pres(pres)
+					.c('status').t('logged out')
+					.tree());
+				thaat.connection.flush();
+				return true;
+			});
+		};
+		_onePresence();
 		for(var r in this._room){
-			this._onePresence(r + '/' + this.nickname);
+			_onePresence(r + '/' + this.nickname);
 		}
-	},
-	/**
-	 * @private
-	 */
-	_onePresence: function(to) {
-		poem.log(['connection presence', to]);
-		var pres = (typeof to == 'undefined') ? {} : {to:to};//from:this.jid.toString,
-		var p = $pres(pres);
-		for(var i=0; i < this._alterPresence.length; i++) {
-			p = this._alterPresence[i](p);
-		}
-		poem.log(p.tree());
-		this.connection.send(p.tree());
-		var thaat = this;
-		pres.type = "unavailable";
-		$(window).unload(function(evt) {
-			thaat.connection.send(
-				$pres(pres)
-				.c('status').t('logged out')
-				.tree());
-			thaat.connection.flush();
-			return true;
-		});
 	},
 	/**
 	 * show or set status
