@@ -93,7 +93,7 @@ poem.Jid.prototype = {
  * @param passwd Password
  * @param nickname Nickname
  */
-poem.Tchat = function(service, login, passwd, nickname) {
+poem.XMPP = function(service, login, passwd, nickname) {
 	this.jid = new poem.Jid(login);
 	this.login = login;
 	this.passwd = passwd;
@@ -279,7 +279,7 @@ function $iqr(iq) {
 	return $iq({id : iq.getAttribute('id'), to: iq.getAttribute('from'), type: 'result'});
 }
 
-poem.Tchat.prototype = {
+poem.XMPP.prototype = {
 	handleConnect: function(h) {
 		this._onConnect = poem.append(this._onConnect, h.bind(this));
 	},
