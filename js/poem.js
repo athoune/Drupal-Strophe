@@ -317,13 +317,13 @@ poem.Tchat.prototype = {
 			return true;
 		};
 		var jsr = $.cookie('strophe.jsr');
-		if(jsr == null || this.tryingAttach) {
+		//if(jsr == null || this.tryingAttach) {
 			this.connection.connect(this.login, this.passwd, callback);
-		} else {
+		/*} else {
 			jsr = jsr.split('::');
 			this.tryingAttach = true;
-			this.connection.attach(jsr[0], jsr[1], parseInt(jsr[2], 10) +1, callback);
-		}
+			this.connection.attach(jsr[0], jsr[1], parseInt(jsr[2], 10) , callback);
+		}*/
 	},
 	/*connect_status: function(status) {
 		poem.log("Status: " +status);
