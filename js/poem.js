@@ -30,10 +30,8 @@ var poem = {
 	AWAY: 'away',
 	CHAT: 'chat',
 	DND: 'dnd', 
-	XA: 'xa'
-};
-
-poem._status = {
+	XA: 'xa',
+	_status : {}
 };
 poem._status[Strophe.Status.CONNECTING] = 'connecting';
 poem._status[Strophe.Status.CONNFAIL] = 'connfail';
