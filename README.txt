@@ -82,6 +82,17 @@ ProxyPassReverse /http-bind http://127.0.0.1:5280/http-bind
 
 Restart Apache. You should see the debug page on http://myserver/http-bind
 
+Here is a lighttpd configuration example :
+8<------------------------------------------------------
+
+$HTTP["url"] =~ "^/http-bind" {
+                proxy.server = ("" => (
+                        ("host" => "127.0.0.1", "port" => 5280)
+                ))
+        }
+
+------------------------------------------------------>8
+
 Drupal
 
 Go to /admin/settings/strophe to set your domain
