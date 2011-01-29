@@ -20,7 +20,8 @@ poem.XMPP.prototype.wannaTalk = function(to, callback, error) {
  * @argument handler a closure that take two arguments, a boolean and a post action closure
  */
 poem.XMPP.prototype.handleWannaTalk = function(handler) {
-	this.handleIQ('wannatalk', function(iq, wannatalk) {
+	this.handleIQ("poem:iq:wannatalk", function(iq, query) {
+		var wannatalk = query.getElementsByTagName('wannatalk')[0];
 		poem.log(['wanna iq', iq, this]);
 		var type = wannatalk.getAttribute('type');
 		var from = iq.getAttribute('from');

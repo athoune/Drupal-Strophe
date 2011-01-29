@@ -109,8 +109,18 @@ poem.XMPP = function(service, login, passwd, nickname) {
 	this.connection.rawInput = poem.rawInput;
 	this.connection.rawOutput = poem.rawOutput;
 	var __iq = function(iq) {
-		poem.log(['iq', iq]);
-		var children = iq.childNodes;
+		var query = iq.getElementsByTagName('query')[0];
+		poem.log(['iq', iq, query.getAttribute('xmlns')]);
+		var handlers = this._onIQ[query.getAttribute('xmlns')];
+		poem.log(this._onIQ);
+		if(handlers != null) {
+			poem.log(handlers);
+			for(var j=0; j < handlers.length; j++) {
+				handlers[j](iq, query);
+			}
+		}
+		
+		/*var children = iq.childNodes;
 		for(var i=0; i < children.length; i++) {
 			var handlers = this._onIQ[children[i].nodeName];
 			if(handlers != null) {
@@ -118,7 +128,7 @@ poem.XMPP = function(service, login, passwd, nickname) {
 					handlers[j](iq, children[i]);
 				}
 			}
-		}
+		}*/
 		return true;
 	};
 	var __presence = function(pres) {
@@ -317,11 +327,11 @@ poem.XMPP.prototype = {
 	handleNSIQ: function(namespace, node, handler) {
 		//[TODO]
 	},
-	handleIQ: function(node, handler) {
-		if(this._onIQ[node] == null) {
-			this._onIQ[node] = [];
+	handleIQ: function(xmlns, handler) {
+		if(this._onIQ[xmlns] == null) {
+			this._onIQ[xmlns] = [];
 		}
-		this._onIQ[node] = poem.append(this._onIQ[node], handler.bind(this));
+		this._onIQ[xmlns].push(handler.bind(this));
 	},
 	/**
 	 * Alter presence stanza
