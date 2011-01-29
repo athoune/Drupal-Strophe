@@ -1,9 +1,20 @@
+var __cool = true;
+var waitAlittle = function() {
+	__cool = true;
+	poem.log("Now, I'm cool");
+}
 
 poem.behaviors.append(function(){
 	var other = Drupal.settings.strophe.chat.other;
+	var head = $('<div style="font-size: 36px;position: relative; z-index:20;">☠</div>');
 	xmpp.handleHeadline('event', function(message, event){
 		poem.log(event.textContent);
-		$('#discussion').css('background-color', event.textContent);
+		//$('#discussion').css('background-color', event.textContent);
+		var t = event.textContent.split(':');
+		console.log({left: parseInt(t[0], 10), top: parseInt(t[1], 10)});
+		head
+			.css('left', parseInt(t[0], 10))
+			.css('top',parseInt(t[1], 10));
 	});
 	xmpp.handleServerMessage(function(msg){
 		poem.log(msg);
@@ -25,6 +36,15 @@ poem.behaviors.append(function(){
 	xmpp.handleConnect(function(status){
 		if(Strophe.Status.CONNECTED == status){
 			this.presence(other);
+		}
+	});
+	var discussion_poz = $('#discussion').offset();
+	$('#discussion').before(head).mousemove(function(evt) {
+		poem.log(__cool);
+		if(__cool) {
+			__cool = false;
+			xmpp.event(other, (evt.pageX - discussion_poz.left) + ":" + (evt.pageY - discussion_poz.top));
+			setTimeout("waitAlittle()", 100);
 		}
 	});
 
