@@ -70,7 +70,7 @@ Here is an apache 2 configuration example :
 ProxyVia on
 ProxyRequests off
 ProxyPreserveHost on
-Proxy *>
+<Proxy *>
 	Order deny,allow
 	Allow from all
 </Proxy>
