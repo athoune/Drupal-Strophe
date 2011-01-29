@@ -1,7 +1,7 @@
 /**
  * Invite someone to talk
  */
-poem.Tchat.prototype.wannaTalk = function(to, callback, error) {
+poem.XMPP.prototype.wannaTalk = function(to, callback, error) {
 	this.connection.sendIQ(
 		$iq({to:to})
 			.c('wannatalk', {type:"question"})
@@ -18,7 +18,7 @@ poem.Tchat.prototype.wannaTalk = function(to, callback, error) {
 /**
  * @argument handler a closure that take two arguments, a boolean and a post action closure
  */
-poem.Tchat.prototype.handleWannaTalk = function(handler) {
+poem.XMPP.prototype.handleWannaTalk = function(handler) {
 	this.handleIQ('wannatalk', function(iq, wannatalk) {
 		poem.log(['wanna iq', iq, this]);
 		var type = wannatalk.getAttribute('type');
