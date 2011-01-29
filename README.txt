@@ -110,6 +110,8 @@ In your theme, you should have something like :
 
 ------------------------------------------------------>8
 
+For now, you have to use clean url.
+
 -- USAGE --
 Strophe use sub modules: muc and chat. Muc is for Multi User Chatroom, and chat is a one to one discussion. With Ejabberd external auth, you don't have any user, so, every rosters are empty. For handling user presence, a simple chatroom is used, every user join this room, and you can display it or just use it for connection status.
 
@@ -127,7 +129,7 @@ Psi is ugly xmpp client, but its XML console is priceless.
 http://psi-im.org/
 
 -- LATER --
- * No fancy pubsub stuuf is used, for now.
+ * Pubsub
  * Chat as a popup, everywhere.
 
 -- CONTACT --
