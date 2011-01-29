@@ -4,6 +4,7 @@
 poem.XMPP.prototype.wannaTalk = function(to, callback, error) {
 	this.connection.sendIQ(
 		$iq({to:to})
+			.c('query', {xmlns:"poem:iq:wannatalk"})
 			.c('wannatalk', {type:"question"})
 			.tree(),
 		function(stanza) {//callback
