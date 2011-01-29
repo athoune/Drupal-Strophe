@@ -7,14 +7,19 @@ var waitAlittle = function() {
 poem.behaviors.append(function(){
 	var other = Drupal.settings.strophe.chat.other;
 	var head = $('<div style="font-size: 36px;position: relative; z-index:20;">☠</div>');
+	var TIMING = 500;
 	xmpp.handleHeadline('event', function(message, event){
 		poem.log(event.textContent);
 		//$('#discussion').css('background-color', event.textContent);
 		var t = event.textContent.split(':');
 		console.log({left: parseInt(t[0], 10), top: parseInt(t[1], 10)});
-		head
+		head.animate({
+			left: parseInt(t[0], 10),
+			top: parseInt(t[1], 10)
+		}, TIMING, function() {});
+		/*head
 			.css('left', parseInt(t[0], 10))
-			.css('top',parseInt(t[1], 10));
+			.css('top',parseInt(t[1], 10));*/
 	});
 	xmpp.handleServerMessage(function(msg){
 		poem.log(msg);
@@ -44,7 +49,7 @@ poem.behaviors.append(function(){
 		if(__cool) {
 			__cool = false;
 			xmpp.event(other, (evt.pageX - discussion_poz.left) + ":" + (evt.pageY - discussion_poz.top));
-			setTimeout("waitAlittle()", 100);
+			setTimeout("waitAlittle()", TIMING);
 		}
 	});
 
