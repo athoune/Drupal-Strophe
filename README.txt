@@ -128,6 +128,10 @@ The Strophe Javascript framework was build to handle chess party.
 Psi is ugly xmpp client, but its XML console is priceless.
 http://psi-im.org/
 
+-- BUG --
+
+Strange bug with direct chat on ejabberd 2.1.6, but it works well on 2.1.5. Weirds.
+
 -- LATER --
  * Pubsub
  * Chat as a popup, everywhere.
