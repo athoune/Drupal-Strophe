@@ -28,6 +28,7 @@ poem.XMPP.prototype.handleWannaTalk = function(handler) {
 		if(type == "question") {
 			var answer = handler(from, wannatalk);
 			this.connection.send($iqr(iq)
+				.c('query', {xmlns:"poem:iq:wannatalk"})
 				.c('wannatalk', {type:"answer"})
 				.t(answer[0] ? '1':'0')
 				.tree());
